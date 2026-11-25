@@ -690,19 +690,19 @@ Browsing experience: product listing with search and filtering, and product deta
 
 ### Tasks
 
-- [ ] Domain: `Product`, `Category`, `ProductImage` entities
-- [ ] Domain: `ProductRepository`, `CategoryRepository` interfaces
-- [ ] Domain: `GetProductsUseCase`, `GetProductByIdUseCase`, `GetCategoriesUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `ProductRemoteDatasource`, `CategoryRemoteDatasource` (Dio)
-- [ ] Data: `ProductRepositoryImpl`, `CategoryRepositoryImpl` (cache-first with sqflite)
-- [ ] sqflite: `products_cache`, `product_images_cache`, `categories_cache` tables
-- [ ] `ProductListPage` + `ProductsNotifier`
-- [ ] `ProductDetailPage` + `ProductDetailNotifier`
-- [ ] Category filter chips + search bar
-- [ ] Pull-to-refresh
-- [ ] Bottom navigation shell (Products, Cart, Orders, Profile)
-- [ ] Wired via Riverpod providers
+- [x] Domain: `Product`, `Category`, `ProductImage` entities
+- [x] Domain: `ProductRepository`, `CategoryRepository` interfaces
+- [x] Domain: `GetProductsUseCase`, `GetProductByIdUseCase`, `GetCategoriesUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `ProductRemoteDatasource`, `CategoryRemoteDatasource` (Dio)
+- [x] Data: `ProductRepositoryImpl`, `CategoryRepositoryImpl` (cache-first with sqflite)
+- [x] sqflite: `products_cache`, `product_images_cache`, `categories_cache` tables
+- [x] `ProductListPage` + `ProductsNotifier`
+- [x] `ProductDetailPage` + `ProductDetailNotifier`
+- [x] Category filter chips + search bar
+- [x] Pull-to-refresh
+- [x] Bottom navigation shell (Products, Cart, Orders, Profile)
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
