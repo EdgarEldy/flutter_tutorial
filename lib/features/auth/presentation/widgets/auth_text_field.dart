@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 
 /// Filled input field following Material 3 auth design spec.
 /// Label is displayed uppercase with letter spacing.
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-25
+/// Project: flutter_tutorial
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
     super.key,
@@ -46,7 +50,7 @@ class AuthTextField extends StatelessWidget {
           color: colorScheme.primary,
         ),
         filled: true,
-        fillColor: const Color(0xFFF4EFF4),
+        fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

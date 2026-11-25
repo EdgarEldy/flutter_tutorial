@@ -33,7 +33,7 @@ class StepIndicatorWidget extends StatelessWidget {
             child: Container(
               height: 1,
               margin: const EdgeInsets.only(bottom: 20),
-              color: isPassed ? colorScheme.primary : const Color(0xFFE7E0EC),
+              color: isPassed ? colorScheme.primary : colorScheme.outlineVariant,
             ),
           );
         }
@@ -50,7 +50,7 @@ class StepIndicatorWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCompleted || isActive
                     ? colorScheme.primary
-                    : const Color(0xFFE7E0EC),
+                    : colorScheme.outlineVariant,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -63,7 +63,7 @@ class StepIndicatorWidget extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: isActive
                               ? Colors.white
-                              : const Color(0xFF79747E),
+                              : colorScheme.onSurfaceVariant,
                         ),
                       ),
               ),
@@ -77,7 +77,7 @@ class StepIndicatorWidget extends StatelessWidget {
                     isActive ? FontWeight.bold : FontWeight.normal,
                 color: isActive || isCompleted
                     ? colorScheme.primary
-                    : const Color(0xFF79747E),
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ],

@@ -94,8 +94,8 @@ class _OtpInputFieldState extends State<OtpInputField> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: _controllers[i].text.isNotEmpty
-                      ? const Color(0xFFEDE7FF)
-                      : const Color(0xFFF4EFF4),
+                      ? colorScheme.primaryContainer
+                      : colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide(
@@ -108,8 +108,8 @@ class _OtpInputFieldState extends State<OtpInputField> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: _controllers[i].text.isEmpty
-                        ? const BorderSide(
-                            color: Color(0xFFCAC4D0),
+                        ? BorderSide(
+                            color: colorScheme.outlineVariant,
                             width: 1.5,
                             style: BorderStyle.solid,
                           )

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 
 /// Gradient hero banner used at the top of all auth screens.
 /// [height] defaults to 200. Sign-in uses 300.
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-25
+/// Project: flutter_tutorial
 class AuthHeroWidget extends StatelessWidget {
   const AuthHeroWidget({
     super.key,
