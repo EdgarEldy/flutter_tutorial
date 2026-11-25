@@ -17,6 +17,7 @@ The application covers the full customer journey: account creation, authenticati
 - [Security](#security)
 - [Development environment](#development-environment)
 - [Build and test](#build-and-test)
+- [CI](#ci)
 - [Branching strategy](#branching-strategy)
 - [feature/core-architecture](#featurecore-architecture)
 - [feature/auth](#featureauth)
@@ -430,6 +431,21 @@ flutter build ipa --release
 # Regenerate code (after modifying freezed/json models or @riverpod notifiers)
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+---
+
+## CI
+
+Continuous integration runs on GitHub Actions and triggers on **pull requests targeting `master` from `develop`** only.
+
+| Step | Command |
+|---|---|
+| Install dependencies | `flutter pub get` |
+| Generate code | `dart run build_runner build --delete-conflicting-outputs` |
+| Static analysis | `flutter analyze` |
+| Unit tests | `flutter test` |
+
+Workflow file: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 ---
 
