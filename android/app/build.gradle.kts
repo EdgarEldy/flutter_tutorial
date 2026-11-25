@@ -36,6 +36,21 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Product flavors mirror the Dart entry points in lib/main_development.dart
+    // and lib/main_production.dart. The applicationIdSuffix lets the
+    // development build install side by side with production on the same device.
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+        create("production") {
+            dimension = "environment"
+        }
+    }
 }
 
 kotlin {
