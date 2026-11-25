@@ -22,6 +22,7 @@ import '../../domain/usecases/send_password_reset_otp_use_case.dart';
 import '../../domain/usecases/sign_in_use_case.dart';
 import '../../domain/usecases/verify_password_reset_otp_use_case.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../datasources/password_reset_remote_datasource.dart';
 import '../repositories/auth_repository_impl.dart';
 import '../repositories/password_reset_repository_impl.dart';
 
@@ -38,8 +39,12 @@ AuthRepository authRepository(Ref ref) => AuthRepositoryImpl(
     );
 
 @riverpod
+PasswordResetRemoteDatasource passwordResetRemoteDatasource(Ref ref) =>
+    PasswordResetRemoteDatasourceImpl(ref.watch(dioProvider));
+
+@riverpod
 PasswordResetRepository passwordResetRepository(Ref ref) =>
-    PasswordResetRepositoryImpl(ref.watch(dioProvider));
+    PasswordResetRepositoryImpl(ref.watch(passwordResetRemoteDatasourceProvider));
 
 @riverpod
 SignInUseCase signInUseCase(Ref ref) => SignInUseCase(
