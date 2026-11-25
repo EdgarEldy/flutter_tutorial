@@ -3,32 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:flutter_tutorial/core/errors/failure.dart';
+import 'package:flutter_tutorial/features/auth/data/datasources/password_reset_remote_datasource.dart';
 import 'package:flutter_tutorial/features/auth/data/repositories/password_reset_repository_impl.dart';
 
-class MockDio extends Mock implements Dio {}
+class MockPasswordResetRemoteDatasource extends Mock
+    implements PasswordResetRemoteDatasource {}
 
 void main() {
-  late MockDio mockDio;
+  late MockPasswordResetRemoteDatasource mockDatasource;
   late PasswordResetRepositoryImpl repo;
 
   setUp(() {
-    mockDio = MockDio();
-    // PasswordResetRepositoryImpl uses dio.post() — set default options stub
-    when(() => mockDio.options).thenReturn(BaseOptions());
-    repo = PasswordResetRepositoryImpl(mockDio);
+    mockDatasource = MockPasswordResetRemoteDatasource();
+    repo = PasswordResetRepositoryImpl(mockDatasource);
   });
 
   group('sendOtp', () {
     test('_01_ShouldReturnRight_WhenOtpIsSentSuccessfully', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenAnswer((_) async => Response(
-            statusCode: 200,
-            requestOptions: RequestOptions(path: 'api/v1/password-reset/mobile'),
-          ));
+      when(() => mockDatasource.sendOtp(any())).thenAnswer((_) async {});
 
       final result = await repo.sendOtp('user@test.com');
 
@@ -38,12 +30,7 @@ void main() {
     test('_02_ShouldReturnServerFailure_WhenEmailIsNotFound', () async {
       final requestOptions =
           RequestOptions(path: 'api/v1/password-reset/mobile');
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.sendOtp(any())).thenThrow(
         DioException(
           requestOptions: requestOptions,
           response: Response(
@@ -67,12 +54,7 @@ void main() {
     test('_03_ShouldReturnUnauthorizedFailure_WhenServerReturns401', () async {
       final requestOptions =
           RequestOptions(path: 'api/v1/password-reset/mobile');
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.sendOtp(any())).thenThrow(
         DioException(
           requestOptions: requestOptions,
           response: Response(
@@ -93,12 +75,7 @@ void main() {
     });
 
     test('_04_ShouldReturnNetworkFailure_WhenConnectionTimesOut', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.sendOtp(any())).thenThrow(
         DioException(
           requestOptions:
               RequestOptions(path: 'api/v1/password-reset/mobile'),
@@ -119,16 +96,8 @@ void main() {
 
   group('verifyOtp', () {
     test('_01_ShouldReturnRight_WhenOtpIsValid', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenAnswer((_) async => Response(
-            statusCode: 200,
-            requestOptions:
-                RequestOptions(path: 'api/v1/password-reset/verify-otp'),
-          ));
+      when(() => mockDatasource.verifyOtp(any(), any()))
+          .thenAnswer((_) async {});
 
       final result = await repo.verifyOtp('user@test.com', '123456');
 
@@ -138,12 +107,7 @@ void main() {
     test('_02_ShouldReturnServerFailure_WhenOtpIsIncorrect', () async {
       final requestOptions =
           RequestOptions(path: 'api/v1/password-reset/verify-otp');
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.verifyOtp(any(), any())).thenThrow(
         DioException(
           requestOptions: requestOptions,
           response: Response(
@@ -165,12 +129,7 @@ void main() {
     });
 
     test('_03_ShouldReturnNetworkFailure_WhenConnectionIsRefused', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.verifyOtp(any(), any())).thenThrow(
         DioException(
           requestOptions:
               RequestOptions(path: 'api/v1/password-reset/verify-otp'),
@@ -191,17 +150,8 @@ void main() {
 
   group('confirmReset', () {
     test('_01_ShouldReturnRight_WhenPasswordResetIsConfirmed', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-          data: any(named: 'data'),
-        ),
-      ).thenAnswer((_) async => Response(
-            statusCode: 200,
-            requestOptions:
-                RequestOptions(path: 'api/v1/password-reset/confirm'),
-          ));
+      when(() => mockDatasource.confirmReset(any(), any(), any()))
+          .thenAnswer((_) async {});
 
       final result =
           await repo.confirmReset('otp-123456', 'NewPass123!', 'NewPass123!');
@@ -212,13 +162,7 @@ void main() {
     test('_02_ShouldReturnServerFailure_WhenOtpTokenIsExpired', () async {
       final requestOptions =
           RequestOptions(path: 'api/v1/password-reset/confirm');
-      when(
-        () => mockDio.post<void>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.confirmReset(any(), any(), any())).thenThrow(
         DioException(
           requestOptions: requestOptions,
           response: Response(
@@ -243,13 +187,7 @@ void main() {
     test('_03_ShouldReturnUnauthorizedFailure_WhenServerReturns401', () async {
       final requestOptions =
           RequestOptions(path: 'api/v1/password-reset/confirm');
-      when(
-        () => mockDio.post<void>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.confirmReset(any(), any(), any())).thenThrow(
         DioException(
           requestOptions: requestOptions,
           response: Response(
@@ -271,13 +209,7 @@ void main() {
     });
 
     test('_04_ShouldReturnNetworkFailure_WhenRequestTimesOut', () async {
-      when(
-        () => mockDio.post<void>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-          data: any(named: 'data'),
-        ),
-      ).thenThrow(
+      when(() => mockDatasource.confirmReset(any(), any(), any())).thenThrow(
         DioException(
           requestOptions:
               RequestOptions(path: 'api/v1/password-reset/confirm'),
@@ -296,5 +228,4 @@ void main() {
       );
     });
   });
-
 }
