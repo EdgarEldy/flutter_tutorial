@@ -284,8 +284,8 @@ The application is a pure API client. All business logic, authentication, prices
 
 | File | Base URL |
 |---|---|
-| `.env` | `http://localhost:8080` (default) |
-| `.env.development` | `http://10.0.2.2:8080` (Android emulator) |
+| `.env` | `http://localhost:8080/` (default) |
+| `.env.development` | `http://10.0.2.2:8080/` (Android emulator) |
 | `.env.production` | HTTPS URL supplied per environment |
 
 ### Response envelope
@@ -404,7 +404,7 @@ cp .env.development .env
 ### Environment file format
 
 ```
-BASE_URL=http://10.0.2.2:8080
+BASE_URL=http://10.0.2.2:8080/
 ```
 
 ---
@@ -455,21 +455,21 @@ Technical foundation shared by every subsequent branch. The branch closes only w
 
 ### Tasks
 
-- [ ] `pubspec.yaml`: all dependencies pinned (see social_feed_app reference)
-- [ ] `analysis_options.yaml`: strict lints
-- [ ] `lib/main.dart` and `lib/bootstrap.dart`: startup sequence (dotenv → ProviderScope → runApp)
-- [ ] `lib/core/errors/failure.dart`: sealed Failure hierarchy
-- [ ] `lib/core/network/dio_client.dart`: Dio factory with `.env` base URL
-- [ ] `lib/core/network/auth_interceptor.dart`: attach Bearer + silent refresh + onSessionExpired callback
-- [ ] `lib/core/storage/secure_token_storage.dart`: read/write/clear tokens
-- [ ] `lib/core/database/app_database.dart`: sqflite open, schema version 1 (empty tables placeholder)
-- [ ] `lib/core/pagination/paginated_result.dart`: generic `PaginatedResult<T>`
-- [ ] `lib/core/providers/`: Riverpod providers for Dio, Database, SecureTokenStorage
-- [ ] `lib/app/theme/app_theme.dart`: Material 3 light + dark themes
-- [ ] `lib/app/router/app_router.dart`: `@riverpod GoRouter` with StatefulShellRoute, auth guard
-- [ ] `.env`, `.env.development`, `.env.production` placeholder files
-- [ ] `flutter pub get` succeeds
-- [ ] `dart run build_runner build` succeeds
+- [x] `pubspec.yaml`: all dependencies pinned (Riverpod 3.5, go_router 18, Dio 5, freezed 4, build_runner 2.17)
+- [x] `analysis_options.yaml`: strict lints with platform directory exclusions
+- [x] `lib/main.dart` and `lib/bootstrap.dart`: startup sequence (dotenv → ProviderScope → runApp)
+- [x] `lib/core/errors/failure.dart`: sealed Failure hierarchy
+- [x] `lib/core/network/dio_client.dart`: Dio factory with `.env` base URL
+- [x] `lib/core/network/auth_interceptor.dart`: attach Bearer + silent refresh + onSessionExpired callback
+- [x] `lib/core/storage/secure_token_storage.dart`: read/write/clear tokens
+- [x] `lib/core/database/app_database.dart`: sqflite open, schema version 1 (empty tables placeholder)
+- [x] `lib/core/pagination/paginated_result.dart`: generic `PaginatedResult<T>`
+- [x] `lib/core/providers/`: Riverpod providers for Dio, Database, SecureTokenStorage
+- [x] `lib/app/theme/app_theme.dart`: Material 3 light + dark themes
+- [x] `lib/app/router/app_router.dart`: `@Riverpod(keepAlive: true) GoRouter` with placeholder sign-in route
+- [x] `.env`, `.env.development`, `.env.production` placeholder files
+- [x] `flutter pub get` succeeds
+- [x] `dart run build_runner build` succeeds
 - [ ] `flutter run` launches empty scaffold
 
 ---
@@ -673,7 +673,7 @@ Order history and order detail.
 | flutter_secure_storage | Platform Keychain/Keystore token persistence |
 | flutter_dotenv | Multi-environment configuration |
 | Offline strategy | Cache-first with background refresh |
-| Unit testing | Use cases, stores with mocktail |
+| Unit testing | Use cases, notifiers with mocktail |
 | Integration testing | Repository tests with http_mock_adapter and sqflite_common_ffi |
 | Golden testing | Widget visual regression with golden_toolkit |
 | GitFlow | Feature branches, Conventional Commits, merge discipline |
