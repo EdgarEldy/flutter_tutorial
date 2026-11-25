@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/domain/entities/auth_state.dart';
@@ -9,6 +11,10 @@ import '../../features/auth/presentation/pages/reset_password_page.dart';
 import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/verify_otp_page.dart';
 import '../../features/auth/presentation/providers/auth_notifier.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/products/presentation/pages/product_detail_page.dart';
+import '../../features/products/presentation/pages/product_list_page.dart';
 
 part 'app_router.g.dart';
 
@@ -24,7 +30,8 @@ const _publicRoutes = [
 
 /// App router with an auth guard driven by [AuthNotifier].
 /// Public routes bypass the guard; all others redirect to /sign-in when
-/// the user is unauthenticated.
+/// the user is unauthenticated. Authenticated shell uses StatefulShellRoute
+/// for persistent bottom navigation with 4 tabs.
 ///
 /// Author: edgar.muhamyangabo
 /// Date: 2026-11-25
@@ -56,7 +63,7 @@ GoRouter router(Ref ref) {
       if (!isAuthenticated && !isPublic) return '/sign-in';
 
       // Authenticated and on a public (auth) route
-      if (isAuthenticated && isPublic) return '/profile';
+      if (isAuthenticated && isPublic) return '/products';
 
       return null;
     },
@@ -73,8 +80,7 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/activate-account',
         builder: (context, state) {
-          final email =
-              state.uri.queryParameters['email'] ?? '';
+          final email = state.uri.queryParameters['email'] ?? '';
           return ActivateAccountPage(email: email);
         },
       ),
@@ -85,8 +91,7 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/verify-otp',
         builder: (context, state) {
-          final email =
-              state.uri.queryParameters['email'] ?? '';
+          final email = state.uri.queryParameters['email'] ?? '';
           return VerifyOtpPage(email: email);
         },
       ),
@@ -97,11 +102,119 @@ GoRouter router(Ref ref) {
           return ResetPasswordPage(otp: otp);
         },
       ),
-      // Protected routes (phase 2 will add StatefulShellRoute for bottom nav)
-      GoRoute(
-        path: '/profile',
-        builder: (context, state) => const ProfilePage(),
+
+      // Protected shell with bottom navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            _AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/products',
+                builder: (context, state) => const ProductListPage(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = int.tryParse(
+                            state.pathParameters['id'] ?? '',
+                          ) ??
+                          0;
+                      return ProductDetailPage(productId: id);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/cart',
+                builder: (context, state) => const CartPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/orders',
+                builder: (context, state) => const OrdersPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfilePage(),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );
+}
+
+/// Shell scaffold with a Material 3 NavigationBar at the bottom.
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-25
+/// Project: flutter_tutorial
+class _AppShell extends StatelessWidget {
+  const _AppShell({required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: navigationShell,
+      bottomNavigationBar: Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: colorScheme.outlineVariant,
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: navigationShell.goBranch,
+          backgroundColor: colorScheme.surface,
+          indicatorColor: const Color(0xFFEDE7FF),
+          indicatorShape: const StadiumBorder(),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.storefront_outlined),
+              selectedIcon: Icon(Icons.storefront),
+              label: 'Products',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.shopping_cart_outlined),
+              selectedIcon: Icon(Icons.shopping_cart),
+              label: 'Cart',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.receipt_long_outlined),
+              selectedIcon: Icon(Icons.receipt_long),
+              label: 'Orders',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
