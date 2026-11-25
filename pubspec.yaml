@@ -38,6 +38,16 @@ dependencies:
   # Secure storage
   flutter_secure_storage: ^9.2.4
 
+  # Utilities
+  fpdart: ^1.1.0
+  flutter_dotenv: ^5.2.1
+  intl: ^0.20.3
+  flutter_localizations:
+    sdk: flutter
+  connectivity_plus: ^6.1.4
+  cached_network_image: ^3.4.1
+  timeago: ^3.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
