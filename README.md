@@ -18,6 +18,7 @@ The application covers the full customer journey: account creation, authenticati
 - [Development environment](#development-environment)
 - [Build and test](#build-and-test)
 - [CI](#ci)
+- [Conventions](#conventions)
 - [Branching strategy](#branching-strategy)
 - [feature/core-architecture](#featurecore-architecture)
 - [feature/auth](#featureauth)
@@ -446,6 +447,104 @@ Continuous integration runs on GitHub Actions and triggers on **pull requests ta
 | Unit tests | `flutter test` |
 
 Workflow file: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+---
+
+## Conventions
+
+### Commits
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+type(scope): short imperative summary
+
+Body explains why this change was made, written for a developer following
+the tutorial. Explain the concept or decision demonstrated here, not just
+what changed. Assume established codebase conventions do not need repeating.
+```
+
+**Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci`, `build`
+
+**Scopes:** the feature or core module touched
+
+| Scope | Used for |
+|---|---|
+| `core/network` | Dio client, interceptors |
+| `core/storage` | SecureTokenStorage |
+| `core/database` | sqflite, DAOs |
+| `core/errors` | Failure hierarchy |
+| `core/providers` | Riverpod infrastructure providers |
+| `auth` | Everything in `features/auth/` |
+| `products` | Everything in `features/products/` |
+| `cart` | Everything in `features/cart/` |
+| `orders` | Everything in `features/orders/` |
+| `router` | go_router, navigation |
+| `theme` | Material 3 theme |
+| `deps` | pubspec.yaml dependency changes |
+| `config` | analysis_options, env files |
+| `ci` | GitHub Actions workflow |
+
+**Example:**
+
+```
+feat(auth): add SignInUseCase returning Either<Failure, User>
+
+Use case calls AuthRepository.signIn and maps the result to domain types.
+Credentials are never stored; only the tokens returned by the backend are
+forwarded to SecureTokenStorage via saveTokens().
+```
+
+A body is required whenever the commit demonstrates a concept or non-trivial
+decision. It can be omitted only for genuinely trivial, self-explanatory changes.
+
+---
+
+### Test naming
+
+Tests are structured with `group()` and `test()`. The group names the subject under
+test (class or method); the test string describes the scenario and expected outcome.
+
+**Pattern:** `'returns <result> when <condition>'` or `'<action> <outcome>'`
+
+```dart
+group('SignInUseCase', () {
+  test('returns Right(User) when credentials are valid', () async {
+    // given
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => right(user));
+    // when
+    final result = await useCase(email: 'a@b.com', password: 'secret');
+    // then
+    expect(result, right(user));
+  });
+
+  test('returns Left(UnauthorizedFailure) when password is wrong', () async {
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => left(const UnauthorizedFailure()));
+    final result = await useCase(email: 'a@b.com', password: 'wrong');
+    expect(result, isA<Left<Failure, User>>());
+  });
+
+  test('returns Left(NetworkFailure) on network error', () async {
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => left(const NetworkFailure()));
+    final result = await useCase(email: 'a@b.com', password: 'secret');
+    expect(result, isA<Left<Failure, User>>());
+  });
+});
+```
+
+For notifier tests, the group names the notifier and each test names the action and
+the resulting state:
+
+```dart
+group('AuthNotifier', () {
+  test('state is AuthStateAuthenticated after successful sign in', () async { ... });
+  test('state is AuthStateError when use case returns UnauthorizedFailure', () async { ... });
+  test('state is AuthStateUnauthenticated after logout', () async { ... });
+});
+```
 
 ---
 
