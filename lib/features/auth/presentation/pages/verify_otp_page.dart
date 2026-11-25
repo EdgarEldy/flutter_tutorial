@@ -55,7 +55,6 @@ class VerifyOtpPage extends HookConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -120,9 +119,9 @@ class VerifyOtpPage extends HookConsumerWidget {
               offset: const Offset(0, -28),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -136,9 +135,9 @@ class VerifyOtpPage extends HookConsumerWidget {
                       RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF49454F),
+                            color: cs.onSurfaceVariant,
                           ),
                           children: [
                             const TextSpan(text: 'Code sent to '),

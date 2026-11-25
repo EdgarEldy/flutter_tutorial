@@ -29,6 +29,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final cs = Theme.of(context).colorScheme;
 
     final user = switch (authState) {
       AuthStateAuthenticated(:final user) => user,
@@ -36,7 +37,6 @@ class ProfilePage extends ConsumerWidget {
     };
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: Stack(
         children: [
           // Hero
@@ -69,173 +69,167 @@ class ProfilePage extends ConsumerWidget {
           // Scrollable content
           SingleChildScrollView(
             padding: const EdgeInsets.only(top: 164), // 200 - 36dp overlap
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFF7F5FF),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name section with avatar overlap
-                  Container(
-                    color: const Color(0xFFF7F5FF),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user != null
-                                      ? '${user.firstName} ${user.lastName}'
-                                      : 'Loading...',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1C1B1F),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  user?.email ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF79747E),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEDE7FF),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Edit',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Name section with avatar overlap
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user != null
+                                  ? '${user.firstName} ${user.lastName}'
+                                  : 'Loading...',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.primary,
+                                color: cs.onSurface,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Username chip
-                  if (user != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                      child: Text(
-                        '@${user.username}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF79747E),
+                            const SizedBox(height: 2),
+                            Text(
+                              user?.email ?? '',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  // Menu items card
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x0D000000),
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          _menuItem(
-                            icon: Icons.shopping_bag_outlined,
-                            iconBg: const Color(0xFFEDE7FF),
-                            iconColor: const Color(0xFF6750A4),
-                            label: 'My Orders',
-                            isFirst: true,
-                          ),
-                          _menuItem(
-                            icon: Icons.bookmark_outline,
-                            iconBg: const Color(0xFFFFF3E0),
-                            iconColor: const Color(0xFFF97316),
-                            label: 'Saved Items',
-                          ),
-                          _menuItem(
-                            icon: Icons.location_on_outlined,
-                            iconBg: const Color(0xFFE0F2FE),
-                            iconColor: const Color(0xFF0284C7),
-                            label: 'My Addresses',
-                          ),
-                          _menuItem(
-                            icon: Icons.security_outlined,
-                            iconBg: const Color(0xFFF0FDF4),
-                            iconColor: const Color(0xFF16A34A),
-                            label: 'Security & Privacy',
-                            isLast: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Sign out button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: TextButton(
-                        onPressed: () => ref
-                            .read(authProvider.notifier)
-                            .logout(),
-                        style: TextButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFF1F2),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        child: const Text(
-                          'Sign Out',
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Edit',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFEF4444),
+                            color: cs.primary,
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Username chip
+                if (user != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: Text(
+                      '@${user.username}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                // Menu items card
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0D000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _menuItem(
+                          cs: cs,
+                          icon: Icons.shopping_bag_outlined,
+                          iconBg: cs.primaryContainer,
+                          iconColor: cs.onPrimaryContainer,
+                          label: 'My Orders',
+                          isFirst: true,
+                        ),
+                        _menuItem(
+                          cs: cs,
+                          icon: Icons.bookmark_outline,
+                          iconBg: cs.tertiaryContainer,
+                          iconColor: cs.onTertiaryContainer,
+                          label: 'Saved Items',
+                        ),
+                        _menuItem(
+                          cs: cs,
+                          icon: Icons.location_on_outlined,
+                          iconBg: cs.secondaryContainer,
+                          iconColor: cs.onSecondaryContainer,
+                          label: 'My Addresses',
+                        ),
+                        _menuItem(
+                          cs: cs,
+                          icon: Icons.security_outlined,
+                          iconBg: cs.surfaceContainerHighest,
+                          iconColor: const Color(0xFF16A34A),
+                          label: 'Security & Privacy',
+                          isLast: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Sign out button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: TextButton(
+                      onPressed: () => ref
+                          .read(authProvider.notifier)
+                          .logout(),
+                      style: TextButton.styleFrom(
+                        backgroundColor: cs.errorContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Sign Out',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFEF4444),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
-                ],
-              ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
           ),
           // Avatar overlapping hero + card
           Positioned(
             top: 164,
             left: 20,
-            child: _buildAvatar(user),
+            child: _buildAvatar(user, cs),
           ),
         ],
       ),
     );
   }
 
-
-  Widget _buildAvatar(User? user) {
+  Widget _buildAvatar(User? user, ColorScheme cs) {
     final initials = user != null
         ? '${user.firstName[0]}${user.lastName[0]}'.toUpperCase()
         : '?';
@@ -244,14 +238,14 @@ class ProfilePage extends ConsumerWidget {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF9B7AEF), Color(0xFF6750A4)],
+        gradient: LinearGradient(
+          colors: [cs.primaryContainer, cs.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFFFFFBFE),
+          color: cs.surface,
           width: 4,
         ),
         boxShadow: const [
@@ -276,6 +270,7 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Widget _menuItem({
+    required ColorScheme cs,
     required IconData icon,
     required Color iconBg,
     required Color iconColor,
@@ -287,9 +282,9 @@ class ProfilePage extends ConsumerWidget {
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : const Border(
+            : Border(
                 bottom: BorderSide(
-                  color: Color(0xFFF4EFF4),
+                  color: cs.outlineVariant,
                   width: 1,
                 ),
               ),
@@ -306,14 +301,14 @@ class ProfilePage extends ConsumerWidget {
         ),
         title: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
-            color: Color(0xFF1C1B1F),
+            color: cs.onSurface,
           ),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: Color(0xFF79747E),
+          color: cs.onSurfaceVariant,
         ),
         onTap: () {},
       ),

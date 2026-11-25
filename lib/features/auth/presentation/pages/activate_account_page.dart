@@ -52,7 +52,6 @@ class ActivateAccountPage extends HookConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -119,9 +118,9 @@ class ActivateAccountPage extends HookConsumerWidget {
               offset: const Offset(0, -28),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -149,21 +148,21 @@ class ActivateAccountPage extends HookConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         'Check your email',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1C1B1F),
+                          color: cs.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
                       RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF49454F),
+                            color: cs.onSurfaceVariant,
                           ),
                           children: [
                             const TextSpan(text: 'Code sent to '),

@@ -31,6 +31,7 @@ class SignInPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final colorScheme = Theme.of(context).colorScheme;
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final passwordVisible = useState(false);
@@ -43,7 +44,6 @@ class SignInPage extends HookConsumerWidget {
     };
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -109,9 +109,9 @@ class SignInPage extends HookConsumerWidget {
               offset: const Offset(0, -28),
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 0),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -120,12 +120,12 @@ class SignInPage extends HookConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
+                      Text(
                         'Sign In',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1C1B1F),
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -146,7 +146,7 @@ class SignInPage extends HookConsumerWidget {
                             passwordVisible.value
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
-                            color: const Color(0xFF79747E),
+                            color: colorScheme.onSurfaceVariant,
                           ),
                           onPressed: () =>
                               passwordVisible.value = !passwordVisible.value,

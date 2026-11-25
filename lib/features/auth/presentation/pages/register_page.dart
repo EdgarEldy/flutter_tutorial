@@ -62,7 +62,6 @@ class RegisterPage extends HookConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -129,9 +128,9 @@ class RegisterPage extends HookConsumerWidget {
             Transform.translate(
               offset: const Offset(0, -28),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -184,7 +183,7 @@ class RegisterPage extends HookConsumerWidget {
                             passwordVisible.value
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
-                            color: const Color(0xFF79747E),
+                            color: cs.onSurfaceVariant,
                           ),
                           onPressed: () =>
                               passwordVisible.value = !passwordVisible.value,
@@ -201,7 +200,7 @@ class RegisterPage extends HookConsumerWidget {
                             confirmPasswordVisible.value
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
-                            color: const Color(0xFF79747E),
+                            color: cs.onSurfaceVariant,
                           ),
                           onPressed: () => confirmPasswordVisible.value =
                               !confirmPasswordVisible.value,
@@ -295,10 +294,10 @@ class RegisterPage extends HookConsumerWidget {
       style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         labelText: label.toUpperCase(),
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontSize: 11,
           letterSpacing: 0.5,
-          color: Color(0xFF49454F),
+          color: colorScheme.onSurfaceVariant,
         ),
         floatingLabelStyle: TextStyle(
           fontSize: 11,
@@ -306,7 +305,7 @@ class RegisterPage extends HookConsumerWidget {
           color: colorScheme.primary,
         ),
         filled: true,
-        fillColor: const Color(0xFFF4EFF4),
+        fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

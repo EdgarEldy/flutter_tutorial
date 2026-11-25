@@ -66,7 +66,7 @@ class ResetPasswordPage extends HookConsumerWidget {
             color: cs.primary,
           ),
           filled: true,
-          fillColor: const Color(0xFFF4EFF4),
+          fillColor: cs.surfaceContainerHighest,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
@@ -86,7 +86,6 @@ class ResetPasswordPage extends HookConsumerWidget {
         );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -150,9 +149,9 @@ class ResetPasswordPage extends HookConsumerWidget {
             Transform.translate(
               offset: const Offset(0, -28),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -163,12 +162,12 @@ class ResetPasswordPage extends HookConsumerWidget {
                     children: [
                       const StepIndicatorWidget(currentStep: 4),
                       const SizedBox(height: 28),
-                      const Text(
+                      Text(
                         'Create your new password',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1C1B1F),
+                          color: cs.onSurface,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -203,7 +202,7 @@ class ResetPasswordPage extends HookConsumerWidget {
                               confirmPasswordVisible.value
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF79747E),
+                              color: cs.onSurfaceVariant,
                             ),
                             onPressed: () => confirmPasswordVisible.value =
                                 !confirmPasswordVisible.value,

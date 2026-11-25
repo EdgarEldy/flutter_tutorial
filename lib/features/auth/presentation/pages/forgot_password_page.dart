@@ -50,7 +50,6 @@ class ForgotPasswordPage extends HookConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -114,9 +113,9 @@ class ForgotPasswordPage extends HookConsumerWidget {
             Transform.translate(
               offset: const Offset(0, -28),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBFE),
-                  borderRadius: BorderRadius.vertical(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(28),
                   ),
                 ),
@@ -127,20 +126,20 @@ class ForgotPasswordPage extends HookConsumerWidget {
                     children: [
                       const StepIndicatorWidget(currentStep: 1),
                       const SizedBox(height: 28),
-                      const Text(
+                      Text(
                         'Your email address',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1C1B1F),
+                          color: cs.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Enter the email address linked to your account and we will send you a code.',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF49454F),
+                          color: cs.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -152,10 +151,10 @@ class ForgotPasswordPage extends HookConsumerWidget {
                         style: const TextStyle(fontSize: 16),
                         decoration: InputDecoration(
                           labelText: 'EMAIL',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 11,
                             letterSpacing: 0.5,
-                            color: Color(0xFF49454F),
+                            color: cs.onSurfaceVariant,
                           ),
                           floatingLabelStyle: TextStyle(
                             fontSize: 11,
@@ -163,7 +162,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
                             color: cs.primary,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF4EFF4),
+                          fillColor: cs.surfaceContainerHighest,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
