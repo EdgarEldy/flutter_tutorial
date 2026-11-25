@@ -21,9 +21,9 @@ class DioClient {
     if (kDebugMode) {
       dio.interceptors.add(
         PrettyDioLogger(
-          requestHeader: true,
+          requestHeader: false,
           requestBody: true,
-          responseBody: true,
+          responseBody: false,
           responseHeader: false,
           error: true,
           compact: true,
