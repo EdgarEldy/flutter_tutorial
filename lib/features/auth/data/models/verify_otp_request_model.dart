@@ -3,6 +3,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'verify_otp_request_model.freezed.dart';
 part 'verify_otp_request_model.g.dart';
 
+/// Request body for step 2 of the mobile password-reset flow (POST /verify-otp).
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-25
+/// Project: flutter_tutorial
 @freezed
 abstract class VerifyOtpRequestModel with _$VerifyOtpRequestModel {
   const factory VerifyOtpRequestModel({
