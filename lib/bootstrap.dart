@@ -5,6 +5,6 @@ import 'app/tutorial_app.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env.development');
   runApp(const ProviderScope(child: TutorialApp()));
 }
