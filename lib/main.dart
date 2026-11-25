@@ -1,3 +1,3 @@
 import 'bootstrap.dart';
 
-void main() => bootstrap();
+void main() => bootstrap(envFileName: '.env.development');
