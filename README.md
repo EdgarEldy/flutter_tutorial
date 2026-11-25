@@ -251,7 +251,11 @@ flutter_tutorial/
 │   │           ├── providers/                ← OrdersNotifier, OrderDetailNotifier
 │   │           └── widgets/
 │   ├── bootstrap.dart                        ← dotenv → ProviderScope → runApp
-│   └── main.dart
+│   ├── main.dart                             ← default entry point (.env.development)
+│   ├── main_development.dart                 ← physical device flavor (.env.development)
+│   ├── main_emulator.dart                    ← Android emulator flavor (.env.emulator)
+│   ├── main_web.dart                         ← Flutter Web entry point (.env.web)
+│   └── main_production.dart                  ← release flavor (.env.production)
 ├── test/
 │   ├── core/
 │   └── features/
@@ -284,11 +288,13 @@ The application is a pure API client. All business logic, authentication, prices
 
 ### Network targets by environment
 
-| File | Base URL |
-|---|---|
-| `.env` | `http://localhost:8080/` (default) |
-| `.env.development` | `http://10.0.2.2:8080/` (Android emulator) |
-| `.env.production` | HTTPS URL supplied per environment |
+| File | Base URL | Target |
+|---|---|---|
+| `.env` | `http://localhost:8080/` | Default (`flutter run`) |
+| `.env.development` | `http://localhost:8080/` | Physical device (`adb reverse tcp:8080 tcp:8080`) |
+| `.env.emulator` | `http://10.0.2.2:8080/` | Android emulator host alias |
+| `.env.web` | `http://localhost:8080/` | Flutter Web / browser |
+| `.env.production` | HTTPS URL supplied per environment | Release build |
 
 ### Response envelope
 
@@ -403,10 +409,20 @@ dart run build_runner build --delete-conflicting-outputs
 cp .env.development .env
 ```
 
+### Entry points
+
+| Entry point | Env file | Use case |
+|---|---|---|
+| `lib/main.dart` | `.env.development` | Quick `flutter run` |
+| `lib/main_development.dart` | `.env.development` | Physical device |
+| `lib/main_emulator.dart` | `.env.emulator` | Android emulator |
+| `lib/main_web.dart` | `.env.web` | Browser (Flutter Web) |
+| `lib/main_production.dart` | `.env.production` | Release / CI |
+
 ### Environment file format
 
 ```
-BASE_URL=http://10.0.2.2:8080/
+BASE_URL=http://localhost:8080/
 ```
 
 ---
@@ -414,7 +430,16 @@ BASE_URL=http://10.0.2.2:8080/
 ## Build and test
 
 ```bash
-# Run on connected device or emulator
+# Physical device (requires adb reverse tcp:8080 tcp:8080 first)
+flutter run -t lib/main_development.dart
+
+# Android emulator
+flutter run -t lib/main_emulator.dart
+
+# Flutter Web
+flutter run -t lib/main_web.dart -d chrome
+
+# Default (same as main_development.dart)
 flutter run
 
 # Run unit tests
@@ -621,25 +646,25 @@ All authentication screens, session management and the mobile OTP password reset
 
 ### Tasks
 
-- [ ] Domain: `User` entity
-- [ ] Domain: `AuthRepository` interface
-- [ ] Domain: `PasswordResetRepository` interface
-- [ ] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
-- [ ] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
-- [ ] Domain: `GetProfileUseCase`
-- [ ] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
-- [ ] Data: `AuthRemoteDatasource` (Dio)
-- [ ] Data: `AuthRepositoryImpl`
-- [ ] Data: `PasswordResetRepositoryImpl`
-- [ ] `SignInPage` + `AuthNotifier`
-- [ ] `RegisterPage`
-- [ ] `ActivateAccountPage`
-- [ ] `ForgotPasswordPage` + `PasswordResetNotifier`
-- [ ] `VerifyOtpPage`
-- [ ] `ResetPasswordPage`
-- [ ] `ProfilePage` + `ProfileNotifier`
-- [ ] Session restoration on app launch
-- [ ] Wired via Riverpod providers
+- [x] Domain: `User` entity
+- [x] Domain: `AuthRepository` interface
+- [x] Domain: `PasswordResetRepository` interface
+- [x] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
+- [x] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
+- [x] Domain: `GetProfileUseCase`
+- [x] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
+- [x] Data: `AuthRemoteDatasource` (Dio)
+- [x] Data: `AuthRepositoryImpl`
+- [x] Data: `PasswordResetRepositoryImpl`
+- [x] `SignInPage` + `AuthNotifier`
+- [x] `RegisterPage`
+- [x] `ActivateAccountPage`
+- [x] `ForgotPasswordPage` + use case providers
+- [x] `VerifyOtpPage`
+- [x] `ResetPasswordPage`
+- [x] `ProfilePage` driven by `AuthNotifier`
+- [x] Session restoration on app launch
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `AuthNotifier`, `AuthRepositoryImpl`
 
 ---
