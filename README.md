@@ -621,25 +621,25 @@ All authentication screens, session management and the mobile OTP password reset
 
 ### Tasks
 
-- [ ] Domain: `User` entity
-- [ ] Domain: `AuthRepository` interface
-- [ ] Domain: `PasswordResetRepository` interface
-- [ ] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
-- [ ] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
-- [ ] Domain: `GetProfileUseCase`
-- [ ] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
-- [ ] Data: `AuthRemoteDatasource` (Dio)
-- [ ] Data: `AuthRepositoryImpl`
-- [ ] Data: `PasswordResetRepositoryImpl`
-- [ ] `SignInPage` + `AuthNotifier`
-- [ ] `RegisterPage`
-- [ ] `ActivateAccountPage`
-- [ ] `ForgotPasswordPage` + `PasswordResetNotifier`
-- [ ] `VerifyOtpPage`
-- [ ] `ResetPasswordPage`
-- [ ] `ProfilePage` + `ProfileNotifier`
-- [ ] Session restoration on app launch
-- [ ] Wired via Riverpod providers
+- [x] Domain: `User` entity
+- [x] Domain: `AuthRepository` interface
+- [x] Domain: `PasswordResetRepository` interface
+- [x] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
+- [x] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
+- [x] Domain: `GetProfileUseCase`
+- [x] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
+- [x] Data: `AuthRemoteDatasource` (Dio)
+- [x] Data: `AuthRepositoryImpl`
+- [x] Data: `PasswordResetRepositoryImpl`
+- [x] `SignInPage` + `AuthNotifier`
+- [x] `RegisterPage`
+- [x] `ActivateAccountPage`
+- [x] `ForgotPasswordPage` + use case providers
+- [x] `VerifyOtpPage`
+- [x] `ResetPasswordPage`
+- [x] `ProfilePage` driven by `AuthNotifier`
+- [x] Session restoration on app launch
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `AuthNotifier`, `AuthRepositoryImpl`
 
 ---
