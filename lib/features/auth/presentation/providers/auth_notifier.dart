@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/providers/session_expired_provider.dart';
 import '../../data/providers/auth_providers.dart';
 import '../../domain/entities/auth_state.dart';
 
@@ -14,7 +15,12 @@ part 'auth_notifier.g.dart';
 class AuthNotifier extends _$AuthNotifier {
   @override
   AuthState build() {
-    // Session check is async; start with initial, then resolve
+    ref.listen(sessionExpiredSignalProvider, (_, expired) {
+      if (expired) {
+        ref.read(sessionExpiredSignalProvider.notifier).clear();
+        logout();
+      }
+    });
     _checkSession();
     return const AuthState.initial();
   }
