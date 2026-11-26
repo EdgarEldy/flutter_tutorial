@@ -177,4 +177,42 @@ void main() {
       );
     });
   });
+
+  group('refreshOrders()', () {
+    test('_07_ShouldDeleteCacheThenFetchFromNetwork_WhenRefreshCalled',
+        () async {
+      when(() => mockLocal.deleteAllOrders()).thenAnswer((_) async {});
+      when(() => mockRemote.getOrders())
+          .thenAnswer((_) async => [testOrderModel]);
+      when(() => mockLocal.upsertOrders(any())).thenAnswer((_) async {});
+
+      final result = await repo.refreshOrders();
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('expected Right'),
+        (orders) {
+          expect(orders, hasLength(1));
+          expect(orders.first.id, equals(1));
+          expect(orders.first.status, equals(OrderStatus.pending));
+        },
+      );
+      verify(() => mockLocal.deleteAllOrders()).called(1);
+      verify(() => mockRemote.getOrders()).called(1);
+      verify(() => mockLocal.upsertOrders(any())).called(1);
+    });
+
+    test('_08_ShouldReturnLeft_WhenNetworkFailsDuringRefresh', () async {
+      when(() => mockLocal.deleteAllOrders()).thenAnswer((_) async {});
+      when(() => mockRemote.getOrders()).thenThrow(makeDioException());
+
+      final result = await repo.refreshOrders();
+
+      expect(result.isLeft(), isTrue);
+      result.fold(
+        (failure) => expect(failure, isA<NetworkFailure>()),
+        (_) => fail('expected Left'),
+      );
+    });
+  });
 }
