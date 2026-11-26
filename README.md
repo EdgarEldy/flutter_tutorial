@@ -17,6 +17,8 @@ The application covers the full customer journey: account creation, authenticati
 - [Security](#security)
 - [Development environment](#development-environment)
 - [Build and test](#build-and-test)
+- [CI](#ci)
+- [Conventions](#conventions)
 - [Branching strategy](#branching-strategy)
 - [feature/core-architecture](#featurecore-architecture)
 - [feature/auth](#featureauth)
@@ -249,7 +251,11 @@ flutter_tutorial/
 │   │           ├── providers/                ← OrdersNotifier, OrderDetailNotifier
 │   │           └── widgets/
 │   ├── bootstrap.dart                        ← dotenv → ProviderScope → runApp
-│   └── main.dart
+│   ├── main.dart                             ← default entry point (.env.development)
+│   ├── main_development.dart                 ← physical device flavor (.env.development)
+│   ├── main_emulator.dart                    ← Android emulator flavor (.env.emulator)
+│   ├── main_web.dart                         ← Flutter Web entry point (.env.web)
+│   └── main_production.dart                  ← release flavor (.env.production)
 ├── test/
 │   ├── core/
 │   └── features/
@@ -282,11 +288,13 @@ The application is a pure API client. All business logic, authentication, prices
 
 ### Network targets by environment
 
-| File | Base URL |
-|---|---|
-| `.env` | `http://localhost:8080` (default) |
-| `.env.development` | `http://10.0.2.2:8080` (Android emulator) |
-| `.env.production` | HTTPS URL supplied per environment |
+| File | Base URL | Target |
+|---|---|---|
+| `.env` | `http://localhost:8080/` | Default (`flutter run`) |
+| `.env.development` | `http://localhost:8080/` | Physical device (`adb reverse tcp:8080 tcp:8080`) |
+| `.env.emulator` | `http://10.0.2.2:8080/` | Android emulator host alias |
+| `.env.web` | `http://localhost:8080/` | Flutter Web / browser |
+| `.env.production` | HTTPS URL supplied per environment | Release build |
 
 ### Response envelope
 
@@ -401,10 +409,20 @@ dart run build_runner build --delete-conflicting-outputs
 cp .env.development .env
 ```
 
+### Entry points
+
+| Entry point | Env file | Use case |
+|---|---|---|
+| `lib/main.dart` | `.env.development` | Quick `flutter run` |
+| `lib/main_development.dart` | `.env.development` | Physical device |
+| `lib/main_emulator.dart` | `.env.emulator` | Android emulator |
+| `lib/main_web.dart` | `.env.web` | Browser (Flutter Web) |
+| `lib/main_production.dart` | `.env.production` | Release / CI |
+
 ### Environment file format
 
 ```
-BASE_URL=http://10.0.2.2:8080
+BASE_URL=http://localhost:8080/
 ```
 
 ---
@@ -412,7 +430,16 @@ BASE_URL=http://10.0.2.2:8080
 ## Build and test
 
 ```bash
-# Run on connected device or emulator
+# Physical device (requires adb reverse tcp:8080 tcp:8080 first)
+flutter run -t lib/main_development.dart
+
+# Android emulator
+flutter run -t lib/main_emulator.dart
+
+# Flutter Web
+flutter run -t lib/main_web.dart -d chrome
+
+# Default (same as main_development.dart)
 flutter run
 
 # Run unit tests
@@ -429,6 +456,119 @@ flutter build ipa --release
 
 # Regenerate code (after modifying freezed/json models or @riverpod notifiers)
 dart run build_runner build --delete-conflicting-outputs
+```
+
+---
+
+## CI
+
+Continuous integration runs on GitHub Actions and triggers on **pull requests targeting `master` from `develop`** only.
+
+| Step | Command |
+|---|---|
+| Install dependencies | `flutter pub get` |
+| Generate code | `dart run build_runner build --delete-conflicting-outputs` |
+| Static analysis | `flutter analyze` |
+| Unit tests | `flutter test` |
+
+Workflow file: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+---
+
+## Conventions
+
+### Commits
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+type(scope): short imperative summary
+
+Body explains why this change was made, written for a developer following
+the tutorial. Explain the concept or decision demonstrated here, not just
+what changed. Assume established codebase conventions do not need repeating.
+```
+
+**Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci`, `build`
+
+**Scopes:** the feature or core module touched
+
+| Scope | Used for |
+|---|---|
+| `core/network` | Dio client, interceptors |
+| `core/storage` | SecureTokenStorage |
+| `core/database` | sqflite, DAOs |
+| `core/errors` | Failure hierarchy |
+| `core/providers` | Riverpod infrastructure providers |
+| `auth` | Everything in `features/auth/` |
+| `products` | Everything in `features/products/` |
+| `cart` | Everything in `features/cart/` |
+| `orders` | Everything in `features/orders/` |
+| `router` | go_router, navigation |
+| `theme` | Material 3 theme |
+| `deps` | pubspec.yaml dependency changes |
+| `config` | analysis_options, env files |
+| `ci` | GitHub Actions workflow |
+
+**Example:**
+
+```
+feat(auth): add SignInUseCase returning Either<Failure, User>
+
+Use case calls AuthRepository.signIn and maps the result to domain types.
+Credentials are never stored; only the tokens returned by the backend are
+forwarded to SecureTokenStorage via saveTokens().
+```
+
+A body is required whenever the commit demonstrates a concept or non-trivial
+decision. It can be omitted only for genuinely trivial, self-explanatory changes.
+
+---
+
+### Test naming
+
+Tests are structured with `group()` and `test()`. The group names the subject under
+test (class or method); the test string describes the scenario and expected outcome.
+
+**Pattern:** `'returns <result> when <condition>'` or `'<action> <outcome>'`
+
+```dart
+group('SignInUseCase', () {
+  test('returns Right(User) when credentials are valid', () async {
+    // given
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => right(user));
+    // when
+    final result = await useCase(email: 'a@b.com', password: 'secret');
+    // then
+    expect(result, right(user));
+  });
+
+  test('returns Left(UnauthorizedFailure) when password is wrong', () async {
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => left(const UnauthorizedFailure()));
+    final result = await useCase(email: 'a@b.com', password: 'wrong');
+    expect(result, isA<Left<Failure, User>>());
+  });
+
+  test('returns Left(NetworkFailure) on network error', () async {
+    when(() => mockRepository.signIn(any(), any()))
+        .thenAnswer((_) async => left(const NetworkFailure()));
+    final result = await useCase(email: 'a@b.com', password: 'secret');
+    expect(result, isA<Left<Failure, User>>());
+  });
+});
+```
+
+For notifier tests, the group names the notifier and each test names the action and
+the resulting state:
+
+```dart
+group('AuthNotifier', () {
+  test('state is AuthStateAuthenticated after successful sign in', () async { ... });
+  test('state is AuthStateError when use case returns UnauthorizedFailure', () async { ... });
+  test('state is AuthStateUnauthenticated after logout', () async { ... });
+});
 ```
 
 ---
@@ -455,21 +595,21 @@ Technical foundation shared by every subsequent branch. The branch closes only w
 
 ### Tasks
 
-- [ ] `pubspec.yaml`: all dependencies pinned (see social_feed_app reference)
-- [ ] `analysis_options.yaml`: strict lints
-- [ ] `lib/main.dart` and `lib/bootstrap.dart`: startup sequence (dotenv → ProviderScope → runApp)
-- [ ] `lib/core/errors/failure.dart`: sealed Failure hierarchy
-- [ ] `lib/core/network/dio_client.dart`: Dio factory with `.env` base URL
-- [ ] `lib/core/network/auth_interceptor.dart`: attach Bearer + silent refresh + onSessionExpired callback
-- [ ] `lib/core/storage/secure_token_storage.dart`: read/write/clear tokens
-- [ ] `lib/core/database/app_database.dart`: sqflite open, schema version 1 (empty tables placeholder)
-- [ ] `lib/core/pagination/paginated_result.dart`: generic `PaginatedResult<T>`
-- [ ] `lib/core/providers/`: Riverpod providers for Dio, Database, SecureTokenStorage
-- [ ] `lib/app/theme/app_theme.dart`: Material 3 light + dark themes
-- [ ] `lib/app/router/app_router.dart`: `@riverpod GoRouter` with StatefulShellRoute, auth guard
-- [ ] `.env`, `.env.development`, `.env.production` placeholder files
-- [ ] `flutter pub get` succeeds
-- [ ] `dart run build_runner build` succeeds
+- [x] `pubspec.yaml`: all dependencies pinned (Riverpod 3.5, go_router 18, Dio 5, freezed 4, build_runner 2.17)
+- [x] `analysis_options.yaml`: strict lints with platform directory exclusions
+- [x] `lib/main.dart` and `lib/bootstrap.dart`: startup sequence (dotenv → ProviderScope → runApp)
+- [x] `lib/core/errors/failure.dart`: sealed Failure hierarchy
+- [x] `lib/core/network/dio_client.dart`: Dio factory with `.env` base URL
+- [x] `lib/core/network/auth_interceptor.dart`: attach Bearer + silent refresh + onSessionExpired callback
+- [x] `lib/core/storage/secure_token_storage.dart`: read/write/clear tokens
+- [x] `lib/core/database/app_database.dart`: sqflite open, schema version 1 (empty tables placeholder)
+- [x] `lib/core/pagination/paginated_result.dart`: generic `PaginatedResult<T>`
+- [x] `lib/core/providers/`: Riverpod providers for Dio, Database, SecureTokenStorage
+- [x] `lib/app/theme/app_theme.dart`: Material 3 light + dark themes
+- [x] `lib/app/router/app_router.dart`: `@Riverpod(keepAlive: true) GoRouter` with placeholder sign-in route
+- [x] `.env`, `.env.development`, `.env.production` placeholder files
+- [x] `flutter pub get` succeeds
+- [x] `dart run build_runner build` succeeds
 - [ ] `flutter run` launches empty scaffold
 
 ---
@@ -506,25 +646,25 @@ All authentication screens, session management and the mobile OTP password reset
 
 ### Tasks
 
-- [ ] Domain: `User` entity
-- [ ] Domain: `AuthRepository` interface
-- [ ] Domain: `PasswordResetRepository` interface
-- [ ] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
-- [ ] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
-- [ ] Domain: `GetProfileUseCase`
-- [ ] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
-- [ ] Data: `AuthRemoteDatasource` (Dio)
-- [ ] Data: `AuthRepositoryImpl`
-- [ ] Data: `PasswordResetRepositoryImpl`
-- [ ] `SignInPage` + `AuthNotifier`
-- [ ] `RegisterPage`
-- [ ] `ActivateAccountPage`
-- [ ] `ForgotPasswordPage` + `PasswordResetNotifier`
-- [ ] `VerifyOtpPage`
-- [ ] `ResetPasswordPage`
-- [ ] `ProfilePage` + `ProfileNotifier`
-- [ ] Session restoration on app launch
-- [ ] Wired via Riverpod providers
+- [x] Domain: `User` entity
+- [x] Domain: `AuthRepository` interface
+- [x] Domain: `PasswordResetRepository` interface
+- [x] Domain: `SignInUseCase`, `RegisterUseCase`, `ActivateAccountUseCase`, `LogoutUseCase`
+- [x] Domain: `RequestPasswordResetOtpUseCase`, `VerifyPasswordResetOtpUseCase`, `ResetPasswordUseCase`
+- [x] Domain: `GetProfileUseCase`
+- [x] Data: `@freezed` models (`AuthResponseModel`, `UserModel`, etc.)
+- [x] Data: `AuthRemoteDatasource` (Dio)
+- [x] Data: `AuthRepositoryImpl`
+- [x] Data: `PasswordResetRepositoryImpl`
+- [x] `SignInPage` + `AuthNotifier`
+- [x] `RegisterPage`
+- [x] `ActivateAccountPage`
+- [x] `ForgotPasswordPage` + use case providers
+- [x] `VerifyOtpPage`
+- [x] `ResetPasswordPage`
+- [x] `ProfilePage` driven by `AuthNotifier`
+- [x] Session restoration on app launch
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `AuthNotifier`, `AuthRepositoryImpl`
 
 ---
@@ -550,20 +690,20 @@ Browsing experience: product listing with search and filtering, and product deta
 
 ### Tasks
 
-- [ ] Domain: `Product`, `Category`, `ProductImage` entities
-- [ ] Domain: `ProductRepository`, `CategoryRepository` interfaces
-- [ ] Domain: `GetProductsUseCase`, `GetProductByIdUseCase`, `GetCategoriesUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `ProductRemoteDatasource`, `CategoryRemoteDatasource` (Dio)
-- [ ] Data: `ProductRepositoryImpl`, `CategoryRepositoryImpl` (cache-first with sqflite)
-- [ ] sqflite: `products_cache`, `product_images_cache`, `categories_cache` tables
-- [ ] `ProductListPage` + `ProductsNotifier`
-- [ ] `ProductDetailPage` + `ProductDetailNotifier`
-- [ ] Category filter chips + search bar
-- [ ] Pull-to-refresh
-- [ ] Bottom navigation shell (Products, Cart, Orders, Profile)
-- [ ] Wired via Riverpod providers
-- [ ] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
+- [x] Domain: `Product`, `Category`, `ProductImage` entities
+- [x] Domain: `ProductRepository`, `CategoryRepository` interfaces
+- [x] Domain: `GetProductsUseCase`, `GetProductByIdUseCase`, `GetCategoriesUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `ProductRemoteDatasource`, `CategoryRemoteDatasource` (Dio)
+- [x] Data: `ProductRepositoryImpl`, `CategoryRepositoryImpl` (cache-first with sqflite)
+- [x] sqflite: `products_cache`, `product_images_cache`, `categories_cache` tables
+- [x] `ProductListPage` + `ProductsNotifier`
+- [x] `ProductDetailPage` + `ProductDetailNotifier`
+- [x] Category filter chips + search bar
+- [x] Pull-to-refresh
+- [x] Bottom navigation shell (Products, Cart, Orders, Profile)
+- [x] Wired via Riverpod providers
+- [x] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
 
@@ -591,18 +731,18 @@ Cart management and checkout.
 
 ### Tasks
 
-- [ ] Domain: `Cart`, `CartItem` entities
-- [ ] Domain: `CartRepository` interface
-- [ ] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `CartRemoteDatasource` (Dio)
-- [ ] Data: `CartRepositoryImpl`
-- [ ] `CartPage` + `CartNotifier`
-- [ ] `CheckoutConfirmationPage`
-- [ ] Add-to-cart action wired from `ProductDetailPage`
-- [ ] Cart badge on bottom nav
-- [ ] Duplicate-submit protection on checkout
-- [ ] Wired via Riverpod providers
+- [x] Domain: `Cart`, `CartItem` entities
+- [x] Domain: `CartRepository` interface
+- [x] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `CartRemoteDatasource` (Dio)
+- [x] Data: `CartRepositoryImpl`
+- [x] `CartPage` + `CartNotifier`
+- [x] `CheckoutConfirmationPage`
+- [x] Add-to-cart action wired from `ProductDetailPage`
+- [x] Cart badge on bottom nav
+- [x] Duplicate-submit protection on checkout
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
 
 ---
@@ -627,18 +767,18 @@ Order history and order detail.
 
 ### Tasks
 
-- [ ] Domain: `Order`, `OrderItem` entities, `OrderStatus` enum (`PENDING`, `CONFIRMED`, `CANCELLED`)
-- [ ] Domain: `OrderRepository` interface
-- [ ] Domain: `GetOrdersUseCase`, `GetOrderByIdUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `OrderRemoteDatasource` (Dio)
-- [ ] Data: `OrderRepositoryImpl` (cache-first with sqflite)
-- [ ] sqflite: `orders_cache`, `order_items_cache` tables
-- [ ] `OrderListPage` + `OrdersNotifier`
-- [ ] `OrderDetailPage` + `OrderDetailNotifier`
-- [ ] `OrderStatusBadge` widget
-- [ ] Pull-to-refresh on order list
-- [ ] Wired via Riverpod providers
+- [x] Domain: `Order`, `OrderItem` entities, `OrderStatus` enum (`PENDING`, `CONFIRMED`, `CANCELLED`)
+- [x] Domain: `OrderRepository` interface
+- [x] Domain: `GetOrdersUseCase`, `GetOrderByIdUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `OrderRemoteDatasource` (Dio)
+- [x] Data: `OrderRepositoryImpl` (cache-first with sqflite)
+- [x] sqflite: `orders_cache`, `order_items_cache` tables
+- [x] `OrderListPage` + `OrdersNotifier`
+- [x] `OrderDetailPage` + `OrderDetailNotifier`
+- [x] `OrderStatusBadge` widget
+- [x] Pull-to-refresh on order list
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
 
 ---
@@ -673,7 +813,7 @@ Order history and order detail.
 | flutter_secure_storage | Platform Keychain/Keystore token persistence |
 | flutter_dotenv | Multi-environment configuration |
 | Offline strategy | Cache-first with background refresh |
-| Unit testing | Use cases, stores with mocktail |
+| Unit testing | Use cases, notifiers with mocktail |
 | Integration testing | Repository tests with http_mock_adapter and sqflite_common_ffi |
 | Golden testing | Widget visual regression with golden_toolkit |
 | GitFlow | Feature branches, Conventional Commits, merge discipline |
