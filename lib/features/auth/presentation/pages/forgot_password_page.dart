@@ -136,7 +136,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Enter the email address linked to your account and we will send you a code.',
+                        'Enter your email to receive a verification code.',
                         style: TextStyle(
                           fontSize: 14,
                           color: cs.onSurfaceVariant,
