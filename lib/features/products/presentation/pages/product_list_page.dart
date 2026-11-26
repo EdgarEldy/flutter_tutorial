@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/products_notifier.dart';
 import '../widgets/product_card.dart';
+import '../../domain/entities/category.dart';
 
 /// Product catalog page. Displays a searchable, filterable grid of products.
 /// Search and category filters trigger a network call; pull-to-refresh reloads.
@@ -149,7 +150,7 @@ class _CategoryChips extends StatelessWidget {
     required this.colorScheme,
   });
 
-  final List categories;
+  final List<Category> categories;
   final int? selectedCategoryId;
   final void Function(int?) onSelected;
   final ColorScheme colorScheme;
