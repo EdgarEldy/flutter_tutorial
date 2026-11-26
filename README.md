@@ -767,18 +767,18 @@ Order history and order detail.
 
 ### Tasks
 
-- [ ] Domain: `Order`, `OrderItem` entities, `OrderStatus` enum (`PENDING`, `CONFIRMED`, `CANCELLED`)
-- [ ] Domain: `OrderRepository` interface
-- [ ] Domain: `GetOrdersUseCase`, `GetOrderByIdUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `OrderRemoteDatasource` (Dio)
-- [ ] Data: `OrderRepositoryImpl` (cache-first with sqflite)
-- [ ] sqflite: `orders_cache`, `order_items_cache` tables
-- [ ] `OrderListPage` + `OrdersNotifier`
-- [ ] `OrderDetailPage` + `OrderDetailNotifier`
-- [ ] `OrderStatusBadge` widget
-- [ ] Pull-to-refresh on order list
-- [ ] Wired via Riverpod providers
+- [x] Domain: `Order`, `OrderItem` entities, `OrderStatus` enum (`PENDING`, `CONFIRMED`, `CANCELLED`)
+- [x] Domain: `OrderRepository` interface
+- [x] Domain: `GetOrdersUseCase`, `GetOrderByIdUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `OrderRemoteDatasource` (Dio)
+- [x] Data: `OrderRepositoryImpl` (cache-first with sqflite)
+- [x] sqflite: `orders_cache`, `order_items_cache` tables
+- [x] `OrderListPage` + `OrdersNotifier`
+- [x] `OrderDetailPage` + `OrderDetailNotifier`
+- [x] `OrderStatusBadge` widget
+- [x] Pull-to-refresh on order list
+- [x] Wired via Riverpod providers
 - [ ] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
 
 ---
