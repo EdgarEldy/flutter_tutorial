@@ -60,6 +60,20 @@ class OrderRepositoryImpl implements OrderRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, List<Order>>> refreshOrders() async {
+    try {
+      await _local.deleteAllOrders();
+      final models = await _remote.getOrders();
+      await _local.upsertOrders(models);
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on DioException catch (e) {
+      return Left(NetworkFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
   Future<List<Order>> _buildFromCache(
     List<Map<String, dynamic>> rows,
   ) async {
