@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../domain/entities/order_summary.dart';
+import '../models/order_summary_model.dart';
 import '../../domain/usecases/checkout_use_case.dart';
 import '../models/cart_model.dart';
 
@@ -85,11 +86,6 @@ class CartRemoteDatasourceImpl implements CartRemoteDatasource {
   Future<OrderSummary> checkout() async {
     final response = await _dio.post<Map<String, dynamic>>('api/v1/orders');
     final data = response.data!['data'] as Map<String, dynamic>;
-    // Map only the fields needed for OrderSummary; ignore customer/product detail
-    return OrderSummary(
-      id: (data['id'] as num).toInt(),
-      status: data['status'] as String,
-      totalAmount: (data['total_amount'] as num).toDouble(),
-    );
+    return OrderSummaryModel.fromJson(data).toEntity();
   }
 }
