@@ -1,6 +1,11 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// App-level SQLite database. Opens or creates the versioned schema on first run.
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-26
+/// Project: flutter_tutorial
 class AppDatabase {
   AppDatabase._();
 
