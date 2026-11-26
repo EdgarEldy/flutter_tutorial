@@ -60,9 +60,9 @@ class SignInPage extends HookConsumerWidget {
                       vertical: 20,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const Spacer(),
                         // Logo
                         Container(
                           width: 72,
