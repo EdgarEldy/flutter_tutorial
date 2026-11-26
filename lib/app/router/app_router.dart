@@ -16,6 +16,7 @@ import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/checkout_confirmation_page.dart';
 import '../../features/cart/presentation/providers/cart_notifier.dart';
+import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_list_page.dart';
@@ -151,6 +152,18 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/orders',
                 builder: (context, state) => const OrdersPage(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = int.tryParse(
+                            state.pathParameters['id'] ?? '',
+                          ) ??
+                          0;
+                      return OrderDetailPage(orderId: id);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
