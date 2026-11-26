@@ -10,6 +10,7 @@ import '../../../../core/providers/dio_provider.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/usecases/get_order_by_id_use_case.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
+import '../../domain/usecases/refresh_orders_use_case.dart';
 import '../datasources/order_local_datasource.dart';
 import '../datasources/order_remote_datasource.dart';
 import '../repositories/order_repository_impl.dart';
@@ -37,3 +38,7 @@ GetOrdersUseCase getOrdersUseCase(Ref ref) =>
 @riverpod
 GetOrderByIdUseCase getOrderByIdUseCase(Ref ref) =>
     GetOrderByIdUseCase(ref.watch(orderRepositoryProvider));
+
+@riverpod
+RefreshOrdersUseCase refreshOrdersUseCase(Ref ref) =>
+    RefreshOrdersUseCase(ref.watch(orderRepositoryProvider));
