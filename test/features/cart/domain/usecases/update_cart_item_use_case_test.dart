@@ -57,4 +57,15 @@ void main() {
     );
     verifyNever(() => mockRepository.updateItem(any(), any()));
   });
+  test('_03_ShouldReturnValidationFailure_WhenQuantityIsNegative', () async {
+    final result = await useCase(1, -1);
+
+    expect(result.isLeft(), isTrue);
+    result.fold(
+      (failure) => expect(failure, isA<ValidationFailure>()),
+      (_) => fail('expected Left'),
+    );
+    verifyNever(() => mockRepository.updateItem(any(), any()));
+  });
+
 }
