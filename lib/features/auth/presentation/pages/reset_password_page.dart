@@ -11,6 +11,86 @@ import '../widgets/step_indicator_widget.dart';
 /// Author: edgar.muhamyangabo
 /// Date: 2026-11-25
 /// Project: flutter_tutorial
+class _PasswordStrengthBar extends StatefulWidget {
+  const _PasswordStrengthBar({required this.controller});
+
+  final TextEditingController controller;
+
+  @override
+  State<_PasswordStrengthBar> createState() => _PasswordStrengthBarState();
+}
+
+class _PasswordStrengthBarState extends State<_PasswordStrengthBar> {
+  int _strength = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_update);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_update);
+    super.dispose();
+  }
+
+  void _update() {
+    final pw = widget.controller.text;
+    int s = 0;
+    if (pw.length >= 8) s++;
+    if (pw.contains(RegExp(r'[A-Z]'))) s++;
+    if (pw.contains(RegExp(r'[0-9]'))) s++;
+    if (pw.contains(RegExp(r'[^A-Za-z0-9]'))) s++;
+    setState(() => _strength = s);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.controller.text.isEmpty) return const SizedBox.shrink();
+    const colors = [
+      Color(0xFFEF4444),
+      Color(0xFFCA8A04),
+      Color(0xFF6750A4),
+      Color(0xFF16A34A),
+    ];
+    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    final idx = (_strength - 1).clamp(0, 3);
+    final activeColor = colors[idx];
+    final label = labels[idx];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Row(
+          children: List.generate(4, (i) {
+            return Expanded(
+              child: Container(
+                margin: EdgeInsets.only(right: i < 3 ? 3 : 0),
+                height: 4,
+                decoration: BoxDecoration(
+                  color: i < _strength ? activeColor : const Color(0xFFE7E0EC),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: activeColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class ResetPasswordPage extends HookConsumerWidget {
   const ResetPasswordPage({super.key, required this.otp});
 
@@ -160,7 +240,7 @@ class ResetPasswordPage extends HookConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const StepIndicatorWidget(currentStep: 4),
+                      const StepIndicatorWidget(currentStep: 3),
                       const SizedBox(height: 28),
                       Text(
                         'Create your new password',
@@ -189,6 +269,8 @@ class ResetPasswordPage extends HookConsumerWidget {
                           ),
                         ),
                       ),
+                      _PasswordStrengthBar(controller: newPasswordController),
+                      const SizedBox(height: 12),
                       const SizedBox(height: 16),
                       TextField(
                         controller: confirmPasswordController,
