@@ -13,4 +13,7 @@ abstract interface class OrderRepository {
 
   /// Returns the detail of a single order by [id].
   Future<Either<Failure, Order>> getOrderById(int id);
+
+  /// Forces a network refresh; deletes the cache and fetches fresh data.
+  Future<Either<Failure, List<Order>>> refreshOrders();
 }
