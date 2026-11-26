@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/product_detail_notifier.dart';
+import '../../../cart/presentation/providers/cart_notifier.dart';
 
 /// Product detail page. Displays full product info, a quantity selector
 /// and an Add to Cart placeholder button.
@@ -118,7 +119,29 @@ class ProductDetailPage extends HookConsumerWidget {
                     width: double.infinity,
                     height: 52,
                     child: FilledButton.icon(
-                      onPressed: null, // placeholder - cart feature not yet implemented
+                      onPressed: () async {
+                        final notifier =
+                            ref.read(cartProvider.notifier);
+                        await notifier.addItem(product.id, quantity.value);
+                        if (!context.mounted) return;
+                        final error = ref.read(cartProvider).errorMessage;
+                        if (error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(error),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Added to cart'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
                       icon: const Icon(Icons.shopping_cart_outlined),
                       label: const Text('Add to Cart'),
                     ),
