@@ -32,9 +32,10 @@ class OrdersNotifier extends _$OrdersNotifier {
     );
   }
 
+  /// Invalidates the cache and fetches fresh data from the network.
   Future<void> refresh() async {
     state = state.copyWith(isRefreshing: true, errorMessage: null);
-    final result = await ref.read(getOrdersUseCaseProvider).call();
+    final result = await ref.read(refreshOrdersUseCaseProvider).call();
     result.fold(
       (failure) => state = state.copyWith(
         isRefreshing: false,
