@@ -10,15 +10,20 @@ import 'package:flutter_tutorial/features/products/domain/entities/category.dart
 import 'package:flutter_tutorial/features/products/domain/entities/product.dart';
 import 'package:flutter_tutorial/features/products/domain/usecases/get_categories_use_case.dart';
 import 'package:flutter_tutorial/features/products/domain/usecases/get_products_use_case.dart';
+import 'package:flutter_tutorial/features/products/domain/usecases/refresh_products_use_case.dart';
 import 'package:flutter_tutorial/features/products/presentation/providers/products_notifier.dart';
 
 class MockGetProductsUseCase extends Mock implements GetProductsUseCase {}
 
 class MockGetCategoriesUseCase extends Mock implements GetCategoriesUseCase {}
 
+class MockRefreshProductsUseCase extends Mock
+    implements RefreshProductsUseCase {}
+
 void main() {
   late MockGetProductsUseCase mockGetProducts;
   late MockGetCategoriesUseCase mockGetCategories;
+  late MockRefreshProductsUseCase mockRefresh;
 
   const testProduct = Product(
     id: 1,
@@ -64,18 +69,23 @@ void main() {
     );
   }
 
+  void stubRefresh({Either<Failure, Unit>? result}) {
+    when(() => mockRefresh.call())
+        .thenAnswer((_) async => result ?? const Right(unit));
+  }
+
   setUp(() {
     mockGetProducts = MockGetProductsUseCase();
     mockGetCategories = MockGetCategoriesUseCase();
+    mockRefresh = MockRefreshProductsUseCase();
   });
 
-  /// Creates a container with mocked use cases and registers a persistent
-  /// listener so the autoDispose provider is never disposed mid-test.
   ProviderContainer makeContainer() {
     final container = ProviderContainer(
       overrides: [
         getCategoriesUseCaseProvider.overrideWithValue(mockGetCategories),
         getProductsUseCaseProvider.overrideWithValue(mockGetProducts),
+        refreshProductsUseCaseProvider.overrideWithValue(mockRefresh),
       ],
     );
     addTearDown(container.dispose);
@@ -87,7 +97,6 @@ void main() {
     stubGetProducts();
 
     final container = makeContainer();
-    // listen() keeps the autoDispose provider alive and returns current state.
     final sub = container.listen(productsProvider, (prev, next) {});
     addTearDown(sub.close);
 
@@ -160,7 +169,6 @@ void main() {
     stubGetProducts();
 
     final container = makeContainer();
-    // Keep provider alive so _loadInitial() completes before setCategory().
     final sub = container.listen(productsProvider, (prev, next) {});
     addTearDown(sub.close);
 
@@ -171,7 +179,6 @@ void main() {
     final state = container.read(productsProvider);
     expect(state.selectedCategoryId, 2);
     expect(state.isLoading, isFalse);
-    // Initial load called with null categoryId; only setCategory uses 2.
     verify(
       () => mockGetProducts.call(
         categoryId: 2,
@@ -199,7 +206,6 @@ void main() {
     final state = container.read(productsProvider);
     expect(state.searchQuery, 'shirt');
     expect(state.isLoading, isFalse);
-    // Initial load called with null productName; only setSearchQuery uses 'shirt'.
     verify(
       () => mockGetProducts.call(
         categoryId: any(named: 'categoryId'),
@@ -213,10 +219,11 @@ void main() {
   });
 
   test(
-    '_07_ShouldSetIsRefreshing_WhenRefreshIsCalled',
+    '_07_ShouldForceNetworkRefreshAndReloadProducts_WhenRefreshIsCalled',
     () async {
       stubGetCategories();
       stubGetProducts();
+      stubRefresh();
 
       final container = makeContainer();
       final sub = container.listen(productsProvider, (prev, next) {});
@@ -230,15 +237,16 @@ void main() {
       expect(state.isRefreshing, isFalse);
       expect(state.products, hasLength(1));
       expect(state.errorMessage, isNull);
+      verify(() => mockRefresh.call()).called(1);
     },
   );
 
   test(
-    '_08_ShouldSetErrorOnRefresh_WhenRefreshFails',
+    '_08_ShouldSetErrorOnRefresh_WhenRefreshUseCaseFails',
     () async {
       stubGetCategories();
-      // Both initial load and refresh fail.
-      stubGetProducts(result: const Left(NetworkFailure('Refresh failed')));
+      stubGetProducts();
+      stubRefresh(result: const Left(NetworkFailure('Refresh failed')));
 
       final container = makeContainer();
       final sub = container.listen(productsProvider, (prev, next) {});
@@ -251,6 +259,18 @@ void main() {
       final state = container.read(productsProvider);
       expect(state.isRefreshing, isFalse);
       expect(state.errorMessage, isNotNull);
+      // getProductsUseCase was called once by _loadInitial() but must NOT
+      // be called a second time when refreshProductsUseCase itself fails.
+      verify(
+        () => mockGetProducts.call(
+          categoryId: any(named: 'categoryId'),
+          productName: any(named: 'productName'),
+          minPrice: any(named: 'minPrice'),
+          maxPrice: any(named: 'maxPrice'),
+          page: any(named: 'page'),
+          size: any(named: 'size'),
+        ),
+      ).called(1);
     },
   );
 }

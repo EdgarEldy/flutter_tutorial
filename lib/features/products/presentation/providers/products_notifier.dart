@@ -49,6 +49,23 @@ class ProductsNotifier extends _$ProductsNotifier {
 
   Future<void> refresh() async {
     state = state.copyWith(isRefreshing: true, errorMessage: null);
+
+    // Force a full network fetch and cache replacement before reading back.
+    // Without this step, getProductsUseCase would return stale cached data
+    // when no filter is active, making pull-to-refresh a no-op.
+    final refreshResult =
+        await ref.read(refreshProductsUseCaseProvider).call();
+    if (refreshResult.isLeft()) {
+      refreshResult.fold(
+        (failure) => state = state.copyWith(
+          isRefreshing: false,
+          errorMessage: failure.message,
+        ),
+        (_) {},
+      );
+      return;
+    }
+
     final result = await ref.read(getProductsUseCaseProvider).call(
           categoryId: state.selectedCategoryId,
           productName: state.searchQuery.isEmpty ? null : state.searchQuery,
