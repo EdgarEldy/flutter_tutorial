@@ -1,6 +1,11 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// App-level SQLite database. Opens or creates the versioned schema on first run.
+///
+/// Author: edgar.muhamyangabo
+/// Date: 2026-11-26
+/// Project: flutter_tutorial
 class AppDatabase {
   AppDatabase._();
 
@@ -19,7 +24,36 @@ class AppDatabase {
   }
 
   static Future<void> _onCreate(Database db, int version) async {
-    // Feature tables will be created here as each feature is implemented.
-    // Products, cart, and orders tables are added in their respective phases.
+    // Products cache tables (phase: product-catalog)
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS products_cache (
+        id INTEGER PRIMARY KEY,
+        product_name TEXT NOT NULL,
+        unit_price REAL NOT NULL,
+        description TEXT,
+        active INTEGER NOT NULL DEFAULT 1,
+        category_id INTEGER,
+        category_name TEXT,
+        cached_at INTEGER NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS product_images_cache (
+        id INTEGER PRIMARY KEY,
+        product_id INTEGER NOT NULL,
+        image_url TEXT NOT NULL,
+        alt_text TEXT,
+        is_primary INTEGER NOT NULL DEFAULT 0,
+        display_order INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (product_id) REFERENCES products_cache(id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS categories_cache (
+        id INTEGER PRIMARY KEY,
+        category_name TEXT NOT NULL,
+        cached_at INTEGER NOT NULL
+      )
+    ''');
   }
 }
