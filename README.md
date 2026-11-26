@@ -703,7 +703,7 @@ Browsing experience: product listing with search and filtering, and product deta
 - [x] Pull-to-refresh
 - [x] Bottom navigation shell (Products, Cart, Orders, Profile)
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
+- [x] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
 
