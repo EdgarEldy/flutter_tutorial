@@ -783,7 +783,9 @@ Order history and order detail.
 - [x] `OrderStatusBadge` widget
 - [x] Pull-to-refresh on order list
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
+- [x] Alignement UI Mes commandes 390 x 844 avec header 22sp, cartes 20px et états
+- [x] Alignement UI Détail commande 390 x 844 avec tracking, items, résumé et retour 36px
+- [x] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
 
 ---
 

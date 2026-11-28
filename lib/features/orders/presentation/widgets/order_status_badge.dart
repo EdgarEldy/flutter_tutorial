@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+
 import '../../domain/entities/order.dart';
 
 /// Colored pill badge that displays the human-readable label for an [OrderStatus].
@@ -17,25 +18,25 @@ class OrderStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, label) = switch (status) {
       OrderStatus.pending => (
-          const Color(0xFFEDE7FF),
-          const Color(0xFF6750A4),
-          'Processing',
-        ),
+        const Color(0xFFEDE7FF),
+        const Color(0xFF6750A4),
+        'Processing',
+      ),
       OrderStatus.confirmed => (
-          const Color(0xFFDCFCE7),
-          const Color(0xFF16A34A),
-          'Confirmed',
-        ),
+        const Color(0xFFDCFCE7),
+        const Color(0xFF16A34A),
+        'Confirmed',
+      ),
       OrderStatus.cancelled => (
-          const Color(0xFFFEE2E2),
-          const Color(0xFFEF4444),
-          'Cancelled',
-        ),
+        const Color(0xFFFEE2E2),
+        const Color(0xFFEF4444),
+        'Cancelled',
+      ),
       OrderStatus.unknown => (
-          const Color(0xFFF4EFF4),
-          const Color(0xFF79747E),
-          'Unknown',
-        ),
+        const Color(0xFFF4EFF4),
+        const Color(0xFF79747E),
+        'Unknown',
+      ),
     };
 
     return Container(
@@ -46,11 +47,7 @@ class OrderStatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: fg,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
