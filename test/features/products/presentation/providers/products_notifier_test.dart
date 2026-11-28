@@ -46,9 +46,7 @@ void main() {
         totalPages: 1,
       );
 
-  void stubGetProducts({
-    Either<Failure, PaginatedResult<Product>>? result,
-  }) {
+  void stubGetProducts({Either<Failure, PaginatedResult<Product>>? result}) {
     when(
       () => mockGetProducts.call(
         categoryId: any(named: 'categoryId'),
@@ -61,12 +59,9 @@ void main() {
     ).thenAnswer((_) async => result ?? Right(paginatedProducts()));
   }
 
-  void stubGetCategories({
-    Either<Failure, List<Category>>? result,
-  }) {
-    when(() => mockGetCategories.call()).thenAnswer(
-      (_) async => result ?? const Right([testCategory]),
-    );
+  void stubGetCategories({Either<Failure, List<Category>>? result}) {
+    when(() => mockGetCategories.call())
+        .thenAnswer((_) async => result ?? const Right([testCategory]));
   }
 
   void stubRefresh({Either<Failure, Unit>? result}) {
@@ -103,66 +98,55 @@ void main() {
     expect(sub.read().isLoading, isTrue);
   });
 
-  test(
-    '_02_ShouldLoadProductsAndCategories_WhenInitialLoadSucceeds',
-    () async {
-      stubGetCategories();
-      stubGetProducts();
+  test('_02_ShouldLoadProductsAndCategories_WhenInitialLoadSucceeds', () async {
+    stubGetCategories();
+    stubGetProducts();
 
-      final container = makeContainer();
-      final sub = container.listen(productsProvider, (prev, next) {});
-      addTearDown(sub.close);
+    final container = makeContainer();
+    final sub = container.listen(productsProvider, (prev, next) {});
+    addTearDown(sub.close);
 
-      await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
 
-      final state = container.read(productsProvider);
-      expect(state.isLoading, isFalse);
-      expect(state.products, hasLength(1));
-      expect(state.categories, hasLength(1));
-      expect(state.errorMessage, isNull);
-    },
-  );
+    final state = container.read(productsProvider);
+    expect(state.isLoading, isFalse);
+    expect(state.products, hasLength(1));
+    expect(state.categories, hasLength(1));
+    expect(state.errorMessage, isNull);
+  });
 
-  test(
-    '_03_ShouldSetErrorMessage_WhenInitialLoadFails',
-    () async {
-      stubGetCategories();
-      stubGetProducts(
-        result: const Left(NetworkFailure('Network error')),
-      );
+  test('_03_ShouldSetErrorMessage_WhenInitialLoadFails', () async {
+    stubGetCategories();
+    stubGetProducts(result: const Left(NetworkFailure('Network error')));
 
-      final container = makeContainer();
-      final sub = container.listen(productsProvider, (prev, next) {});
-      addTearDown(sub.close);
+    final container = makeContainer();
+    final sub = container.listen(productsProvider, (prev, next) {});
+    addTearDown(sub.close);
 
-      await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
 
-      final state = container.read(productsProvider);
-      expect(state.isLoading, isFalse);
-      expect(state.errorMessage, isNotNull);
-    },
-  );
+    final state = container.read(productsProvider);
+    expect(state.isLoading, isFalse);
+    expect(state.errorMessage, isNotNull);
+  });
 
-  test(
-    '_04_ShouldSetCategoriesEmpty_WhenCategoriesUseCaseFails',
-    () async {
-      stubGetCategories(
-        result: const Left(NetworkFailure('Categories unavailable')),
-      );
-      stubGetProducts();
+  test('_04_ShouldSetCategoriesEmpty_WhenCategoriesUseCaseFails', () async {
+    stubGetCategories(
+      result: const Left(NetworkFailure('Categories unavailable')),
+    );
+    stubGetProducts();
 
-      final container = makeContainer();
-      final sub = container.listen(productsProvider, (prev, next) {});
-      addTearDown(sub.close);
+    final container = makeContainer();
+    final sub = container.listen(productsProvider, (prev, next) {});
+    addTearDown(sub.close);
 
-      await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
 
-      final state = container.read(productsProvider);
-      expect(state.categories, isEmpty);
-      expect(state.products, hasLength(1));
-      expect(state.isLoading, isFalse);
-    },
-  );
+    final state = container.read(productsProvider);
+    expect(state.categories, isEmpty);
+    expect(state.products, hasLength(1));
+    expect(state.isLoading, isFalse);
+  });
 
   test('_05_ShouldFilterByCategory_WhenSetCategoryIsCalled', () async {
     stubGetCategories();
@@ -241,36 +225,33 @@ void main() {
     },
   );
 
-  test(
-    '_08_ShouldSetErrorOnRefresh_WhenRefreshUseCaseFails',
-    () async {
-      stubGetCategories();
-      stubGetProducts();
-      stubRefresh(result: const Left(NetworkFailure('Refresh failed')));
+  test('_08_ShouldSetErrorOnRefresh_WhenRefreshUseCaseFails', () async {
+    stubGetCategories();
+    stubGetProducts();
+    stubRefresh(result: const Left(NetworkFailure('Refresh failed')));
 
-      final container = makeContainer();
-      final sub = container.listen(productsProvider, (prev, next) {});
-      addTearDown(sub.close);
+    final container = makeContainer();
+    final sub = container.listen(productsProvider, (prev, next) {});
+    addTearDown(sub.close);
 
-      await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
 
-      await container.read(productsProvider.notifier).refresh();
+    await container.read(productsProvider.notifier).refresh();
 
-      final state = container.read(productsProvider);
-      expect(state.isRefreshing, isFalse);
-      expect(state.errorMessage, isNotNull);
-      // getProductsUseCase was called once by _loadInitial() but must NOT
-      // be called a second time when refreshProductsUseCase itself fails.
-      verify(
-        () => mockGetProducts.call(
-          categoryId: any(named: 'categoryId'),
-          productName: any(named: 'productName'),
-          minPrice: any(named: 'minPrice'),
-          maxPrice: any(named: 'maxPrice'),
-          page: any(named: 'page'),
-          size: any(named: 'size'),
-        ),
-      ).called(1);
-    },
-  );
+    final state = container.read(productsProvider);
+    expect(state.isRefreshing, isFalse);
+    expect(state.errorMessage, isNotNull);
+    // getProductsUseCase was called once by _loadInitial() but must NOT
+    // be called a second time when refreshProductsUseCase itself fails.
+    verify(
+      () => mockGetProducts.call(
+        categoryId: any(named: 'categoryId'),
+        productName: any(named: 'productName'),
+        minPrice: any(named: 'minPrice'),
+        maxPrice: any(named: 'maxPrice'),
+        page: any(named: 'page'),
+        size: any(named: 'size'),
+      ),
+    ).called(1);
+  });
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 // ConsumerWidget is from hooks_riverpod; riverpod_annotation provides @riverpod
 import '../../features/auth/domain/entities/auth_state.dart';
 import '../../features/auth/presentation/pages/activate_account_page.dart';
@@ -128,10 +129,8 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: ':id',
                     builder: (context, state) {
-                      final id = int.tryParse(
-                            state.pathParameters['id'] ?? '',
-                          ) ??
-                          0;
+                      final id =
+                          int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                       return ProductDetailPage(productId: id);
                     },
                   ),
@@ -156,10 +155,8 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: ':id',
                     builder: (context, state) {
-                      final id = int.tryParse(
-                            state.pathParameters['id'] ?? '',
-                          ) ??
-                          0;
+                      final id =
+                          int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                       return OrderDetailPage(orderId: id);
                     },
                   ),
@@ -195,8 +192,7 @@ class _AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cartItemCount =
-        ref.watch(cartProvider).cart?.itemCount ?? 0;
+    final cartItemCount = ref.watch(cartProvider).cart?.itemCount ?? 0;
 
     return Scaffold(
       body: navigationShell,
@@ -205,17 +201,15 @@ class _AppShell extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           border: Border(
-            top: BorderSide(
-              color: colorScheme.outlineVariant,
-              width: 0.5,
-            ),
+            top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
           ),
         ),
         child: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: navigationShell.goBranch,
+          height: 80,
           backgroundColor: colorScheme.surface,
-          indicatorColor: const Color(0xFFEDE7FF),
+          indicatorColor: colorScheme.primaryContainer,
           indicatorShape: const StadiumBorder(),
           destinations: [
             const NavigationDestination(

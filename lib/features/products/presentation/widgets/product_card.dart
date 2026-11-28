@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import '../../domain/entities/product.dart';
 
 /// Card widget showing product image, name and price in a grid layout.
@@ -9,11 +10,7 @@ import '../../domain/entities/product.dart';
 /// Date: 2026-11-25
 /// Project: flutter_tutorial
 class ProductCard extends StatelessWidget {
-  const ProductCard({
-    super.key,
-    required this.product,
-    required this.onTap,
-  });
+  const ProductCard({super.key, required this.product, required this.onTap});
 
   final Product product;
   final VoidCallback onTap;
@@ -23,9 +20,10 @@ class ProductCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
+      borderRadius: BorderRadius.circular(20),
+      child: Ink(
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
@@ -37,13 +35,10 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
-        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: _ProductImage(imageUrl: product.primaryImageUrl),
-            ),
+            Expanded(child: _ProductImage(imageUrl: product.primaryImageUrl)),
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -99,20 +94,25 @@ class _ProductImage extends StatelessWidget {
 class _Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF7C3AED),
-            Color(0xFF6750A4),
-            Color(0xFF4A3580),
+            colorScheme.primary,
+            colorScheme.primaryContainer,
+            colorScheme.secondaryContainer,
           ],
         ),
       ),
-      child: const Center(
-        child: Icon(Icons.image_outlined, color: Colors.white54, size: 40),
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          color: colorScheme.onPrimary,
+          size: 40,
+        ),
       ),
     );
   }
