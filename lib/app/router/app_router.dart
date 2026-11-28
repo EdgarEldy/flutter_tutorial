@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// ConsumerWidget is from hooks_riverpod; riverpod_annotation provides @riverpod
 import '../../features/auth/domain/entities/auth_state.dart';
 import '../../features/auth/presentation/pages/activate_account_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
@@ -17,7 +16,6 @@ import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/checkout_confirmation_page.dart';
 import '../../features/cart/presentation/providers/cart_notifier.dart';
-import '../../features/orders/presentation/pages/order_detail_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_list_page.dart';
@@ -108,8 +106,6 @@ GoRouter router(Ref ref) {
           return ResetPasswordPage(otp: otp);
         },
       ),
-
-      // Protected non-shell route for checkout confirmation
       GoRoute(
         path: '/checkout-confirmation',
         builder: (context, state) => const CheckoutConfirmationPage(),
@@ -151,16 +147,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/orders',
                 builder: (context, state) => const OrdersPage(),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (context, state) {
-                      final id =
-                          int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-                      return OrderDetailPage(orderId: id);
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -179,10 +165,9 @@ GoRouter router(Ref ref) {
 }
 
 /// Shell scaffold with a Material 3 NavigationBar at the bottom.
-/// Displays a badge on the Cart tab when the cart is non-empty.
 ///
 /// Author: edgar.muhamyangabo
-/// Date: 2026-11-26
+/// Date: 2026-11-25
 /// Project: flutter_tutorial
 class _AppShell extends ConsumerWidget {
   const _AppShell({required this.navigationShell});
@@ -192,7 +177,7 @@ class _AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cartItemCount = ref.watch(cartProvider).cart?.itemCount ?? 0;
+    final cartCount = ref.watch(cartProvider).cart?.itemCount ?? 0;
 
     return Scaffold(
       body: navigationShell,
@@ -218,18 +203,16 @@ class _AppShell extends ConsumerWidget {
               label: 'Products',
             ),
             NavigationDestination(
-              icon: cartItemCount > 0
-                  ? Badge(
-                      label: Text('$cartItemCount'),
-                      child: const Icon(Icons.shopping_cart_outlined),
-                    )
-                  : const Icon(Icons.shopping_cart_outlined),
-              selectedIcon: cartItemCount > 0
-                  ? Badge(
-                      label: Text('$cartItemCount'),
-                      child: const Icon(Icons.shopping_cart),
-                    )
-                  : const Icon(Icons.shopping_cart),
+              icon: Badge(
+                isLabelVisible: cartCount > 0,
+                label: Text('$cartCount'),
+                child: const Icon(Icons.shopping_cart_outlined),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: cartCount > 0,
+                label: Text('$cartCount'),
+                child: const Icon(Icons.shopping_cart),
+              ),
               label: 'Cart',
             ),
             const NavigationDestination(

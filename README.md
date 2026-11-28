@@ -745,7 +745,9 @@ Cart management and checkout.
 - [x] Cart badge on bottom nav
 - [x] Duplicate-submit protection on checkout
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
+- [x] Alignement UI panier 390 x 844 avec cartes, controls tactiles, résumé sticky et états
+- [x] Alignement UI confirmation commande 390 x 844
+- [x] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
 
 ---
 

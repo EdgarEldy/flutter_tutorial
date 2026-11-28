@@ -99,7 +99,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     final state = container.read(cartProvider);
     expect(state.isLoading, isFalse);
@@ -117,7 +117,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     final state = container.read(cartProvider);
     expect(state.isLoading, isFalse);
@@ -137,7 +137,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).addItem(10, 2);
 
@@ -159,7 +159,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).addItem(10, 2);
 
@@ -178,7 +178,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).updateItem(1, 3);
 
@@ -199,7 +199,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).removeItem(1);
 
@@ -220,7 +220,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).checkout();
 
@@ -243,7 +243,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     await container.read(cartProvider.notifier).checkout();
 
@@ -253,7 +253,67 @@ void main() {
     expect(state.lastOrder, isNull);
   });
 
-  test('_10_ShouldNotCallCheckoutAgain_WhenAlreadyCheckingOut', () async {
+  test('_10_ShouldSetLoadingAndReloadCart_WhenRefreshSucceeds', () async {
+    when(() => mockGetCart.call())
+        .thenAnswer((_) async => const Right(testCart));
+
+    final container = makeContainer();
+    final sub = container.listen(cartProvider, (_, _) {});
+    addTearDown(sub.close);
+
+    container.read(cartProvider);
+    await pumpEventQueue();
+
+    await container.read(cartProvider.notifier).refresh();
+    await pumpEventQueue();
+
+    final state = container.read(cartProvider);
+    expect(state.isLoading, isFalse);
+    expect(state.cart, isNotNull);
+    expect(state.errorMessage, isNull);
+  });
+
+  test('_11_ShouldSetErrorMessage_WhenUpdateItemFails', () async {
+    when(() => mockGetCart.call())
+        .thenAnswer((_) async => const Right(testCart));
+    when(() => mockUpdateItem.call(1, 0)).thenAnswer(
+      (_) async => const Left(ValidationFailure('Quantity must be at least 1')),
+    );
+
+    final container = makeContainer();
+    final sub = container.listen(cartProvider, (_, _) {});
+    addTearDown(sub.close);
+
+    container.read(cartProvider);
+    await pumpEventQueue();
+
+    await container.read(cartProvider.notifier).updateItem(1, 0);
+
+    final state = container.read(cartProvider);
+    expect(state.errorMessage, equals('Quantity must be at least 1'));
+  });
+
+  test('_12_ShouldSetErrorMessage_WhenRemoveItemFails', () async {
+    when(() => mockGetCart.call())
+        .thenAnswer((_) async => const Right(testCart));
+    when(() => mockRemoveItem.call(1)).thenAnswer(
+      (_) async => const Left(NetworkFailure('Remove failed')),
+    );
+
+    final container = makeContainer();
+    final sub = container.listen(cartProvider, (_, _) {});
+    addTearDown(sub.close);
+
+    container.read(cartProvider);
+    await pumpEventQueue();
+
+    await container.read(cartProvider.notifier).removeItem(1);
+
+    final state = container.read(cartProvider);
+    expect(state.errorMessage, equals('Remove failed'));
+  });
+
+  test('_13_ShouldNotCallCheckoutAgain_WhenAlreadyCheckingOut', () async {
     when(() => mockGetCart.call())
         .thenAnswer((_) async => const Right(testCart));
 
@@ -265,7 +325,7 @@ void main() {
     addTearDown(sub.close);
 
     container.read(cartProvider);
-    await Future.delayed(Duration.zero);
+    await pumpEventQueue();
 
     final notifier = container.read(cartProvider.notifier);
     // ignore: discarded_futures
