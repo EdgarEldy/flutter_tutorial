@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../domain/entities/category.dart';
 import '../providers/products_notifier.dart';
 import '../widgets/product_card.dart';
 import '../../domain/entities/category.dart';
@@ -23,7 +25,6 @@ class ProductListPage extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Debounce search input
     useEffect(() {
       void listener() => notifier.setSearchQuery(searchController.text);
       searchController.addListener(listener);
@@ -76,11 +77,10 @@ class ProductListPage extends HookConsumerWidget {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 sliver: SliverGrid.builder(
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 220,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                     childAspectRatio: 0.72,
@@ -103,10 +103,7 @@ class ProductListPage extends HookConsumerWidget {
 }
 
 class _AppBar extends StatelessWidget {
-  const _AppBar({
-    required this.colorScheme,
-    required this.searchController,
-  });
+  const _AppBar({required this.colorScheme, required this.searchController});
 
   final ColorScheme colorScheme;
   final TextEditingController searchController;
@@ -117,7 +114,12 @@ class _AppBar extends StatelessWidget {
       floating: true,
       snap: true,
       backgroundColor: colorScheme.surface,
-      title: const Text('Products'),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      title: const Text(
+        'Products',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+      ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(64),
         child: Padding(
@@ -128,9 +130,9 @@ class _AppBar extends StatelessWidget {
               hintText: 'Search products...',
               prefixIcon: const Icon(Icons.search),
               filled: true,
-              fillColor: colorScheme.surfaceVariant,
+              fillColor: colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -204,28 +206,23 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        decoration: BoxDecoration(
+    return SizedBox(
+      height: 48,
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (_) => onTap(),
+        selectedColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.surfaceContainerHighest,
+        labelStyle: TextStyle(
           color: isSelected
-              ? const Color(0xFFEDE7FF)
-              : colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(100),
+              ? colorScheme.onPrimaryContainer
+              : colorScheme.onSurfaceVariant,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          fontSize: 13,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected
-                ? colorScheme.primary
-                : colorScheme.onSurfaceVariant,
-            fontWeight:
-                isSelected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 13,
-          ),
-        ),
+        shape: const StadiumBorder(),
+        side: BorderSide.none,
       ),
     );
   }

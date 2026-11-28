@@ -1,9 +1,8 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-// ConsumerWidget is from hooks_riverpod; riverpod_annotation provides @riverpod
+
 import '../../features/auth/domain/entities/auth_state.dart';
 import '../../features/auth/presentation/pages/activate_account_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
@@ -14,8 +13,6 @@ import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/verify_otp_page.dart';
 import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
-import '../../features/cart/presentation/pages/checkout_confirmation_page.dart';
-import '../../features/cart/presentation/providers/cart_notifier.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_list_page.dart';
@@ -107,12 +104,6 @@ GoRouter router(Ref ref) {
         },
       ),
 
-      // Protected non-shell route for checkout confirmation
-      GoRoute(
-        path: '/checkout-confirmation',
-        builder: (context, state) => const CheckoutConfirmationPage(),
-      ),
-
       // Protected shell with bottom navigation
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -127,10 +118,8 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: ':id',
                     builder: (context, state) {
-                      final id = int.tryParse(
-                            state.pathParameters['id'] ?? '',
-                          ) ??
-                          0;
+                      final id =
+                          int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                       return ProductDetailPage(productId: id);
                     },
                   ),
@@ -169,21 +158,18 @@ GoRouter router(Ref ref) {
 }
 
 /// Shell scaffold with a Material 3 NavigationBar at the bottom.
-/// Displays a badge on the Cart tab when the cart is non-empty.
 ///
 /// Author: edgar.muhamyangabo
-/// Date: 2026-11-26
+/// Date: 2026-11-25
 /// Project: flutter_tutorial
-class _AppShell extends ConsumerWidget {
+class _AppShell extends StatelessWidget {
   const _AppShell({required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cartItemCount =
-        ref.watch(cartProvider).cart?.itemCount ?? 0;
 
     return Scaffold(
       body: navigationShell,
@@ -192,45 +178,33 @@ class _AppShell extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           border: Border(
-            top: BorderSide(
-              color: colorScheme.outlineVariant,
-              width: 0.5,
-            ),
+            top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
           ),
         ),
         child: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: navigationShell.goBranch,
+          height: 80,
           backgroundColor: colorScheme.surface,
-          indicatorColor: const Color(0xFFEDE7FF),
+          indicatorColor: colorScheme.primaryContainer,
           indicatorShape: const StadiumBorder(),
-          destinations: [
-            const NavigationDestination(
+          destinations: const [
+            NavigationDestination(
               icon: Icon(Icons.storefront_outlined),
               selectedIcon: Icon(Icons.storefront),
               label: 'Products',
             ),
             NavigationDestination(
-              icon: cartItemCount > 0
-                  ? Badge(
-                      label: Text('$cartItemCount'),
-                      child: const Icon(Icons.shopping_cart_outlined),
-                    )
-                  : const Icon(Icons.shopping_cart_outlined),
-              selectedIcon: cartItemCount > 0
-                  ? Badge(
-                      label: Text('$cartItemCount'),
-                      child: const Icon(Icons.shopping_cart),
-                    )
-                  : const Icon(Icons.shopping_cart),
+              icon: Icon(Icons.shopping_cart_outlined),
+              selectedIcon: Icon(Icons.shopping_cart),
               label: 'Cart',
             ),
-            const NavigationDestination(
+            NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
               selectedIcon: Icon(Icons.receipt_long),
               label: 'Orders',
             ),
-            const NavigationDestination(
+            NavigationDestination(
               icon: Icon(Icons.person_outline),
               selectedIcon: Icon(Icons.person),
               label: 'Profile',

@@ -703,6 +703,8 @@ Browsing experience: product listing with search and filtering, and product deta
 - [x] Pull-to-refresh
 - [x] Bottom navigation shell (Products, Cart, Orders, Profile)
 - [x] Wired via Riverpod providers
+- [x] Alignement UI catalogue 390 x 844 avec grille, cartes, chips et bottom bar
+- [x] Alignement UI détail produit avec image 300dp, pinned appbar et quantity selector
 - [x] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
@@ -731,18 +733,18 @@ Cart management and checkout.
 
 ### Tasks
 
-- [x] Domain: `Cart`, `CartItem` entities
-- [x] Domain: `CartRepository` interface
-- [x] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
-- [x] Data: `@freezed` models + json_serializable
-- [x] Data: `CartRemoteDatasource` (Dio)
-- [x] Data: `CartRepositoryImpl`
-- [x] `CartPage` + `CartNotifier`
-- [x] `CheckoutConfirmationPage`
-- [x] Add-to-cart action wired from `ProductDetailPage`
-- [x] Cart badge on bottom nav
-- [x] Duplicate-submit protection on checkout
-- [x] Wired via Riverpod providers
+- [ ] Domain: `Cart`, `CartItem` entities
+- [ ] Domain: `CartRepository` interface
+- [ ] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
+- [ ] Data: `@freezed` models + json_serializable
+- [ ] Data: `CartRemoteDatasource` (Dio)
+- [ ] Data: `CartRepositoryImpl`
+- [ ] `CartPage` + `CartNotifier`
+- [ ] `CheckoutConfirmationPage`
+- [ ] Add-to-cart action wired from `ProductDetailPage`
+- [ ] Cart badge on bottom nav
+- [ ] Duplicate-submit protection on checkout
+- [ ] Wired via Riverpod providers
 - [ ] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
 
 ---
