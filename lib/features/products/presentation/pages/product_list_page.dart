@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../domain/entities/category.dart';
 import '../providers/products_notifier.dart';
 import '../widgets/product_card.dart';
-import '../../domain/entities/category.dart';
 
 /// Product catalog page. Displays a searchable, filterable grid of products.
 /// Search and category filters trigger a network call; pull-to-refresh reloads.
