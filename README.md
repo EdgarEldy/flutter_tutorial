@@ -733,19 +733,21 @@ Cart management and checkout.
 
 ### Tasks
 
-- [ ] Domain: `Cart`, `CartItem` entities
-- [ ] Domain: `CartRepository` interface
-- [ ] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
-- [ ] Data: `@freezed` models + json_serializable
-- [ ] Data: `CartRemoteDatasource` (Dio)
-- [ ] Data: `CartRepositoryImpl`
-- [ ] `CartPage` + `CartNotifier`
-- [ ] `CheckoutConfirmationPage`
-- [ ] Add-to-cart action wired from `ProductDetailPage`
-- [ ] Cart badge on bottom nav
-- [ ] Duplicate-submit protection on checkout
-- [ ] Wired via Riverpod providers
-- [ ] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
+- [x] Domain: `Cart`, `CartItem` entities
+- [x] Domain: `CartRepository` interface
+- [x] Domain: `GetCartUseCase`, `AddCartItemUseCase`, `UpdateCartItemUseCase`, `RemoveCartItemUseCase`, `CheckoutUseCase`
+- [x] Data: `@freezed` models + json_serializable
+- [x] Data: `CartRemoteDatasource` (Dio)
+- [x] Data: `CartRepositoryImpl`
+- [x] `CartPage` + `CartNotifier`
+- [x] `CheckoutConfirmationPage`
+- [x] Add-to-cart action wired from `ProductDetailPage`
+- [x] Cart badge on bottom nav
+- [x] Duplicate-submit protection on checkout
+- [x] Wired via Riverpod providers
+- [x] Alignement UI panier 390 x 844 avec cartes, controls tactiles, résumé sticky et états
+- [x] Alignement UI confirmation commande 390 x 844
+- [x] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
 
 ---
 
