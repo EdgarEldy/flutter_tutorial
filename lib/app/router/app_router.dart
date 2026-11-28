@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../features/auth/domain/entities/auth_state.dart';
 import '../../features/auth/presentation/pages/activate_account_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
@@ -117,10 +118,8 @@ GoRouter router(Ref ref) {
                   GoRoute(
                     path: ':id',
                     builder: (context, state) {
-                      final id = int.tryParse(
-                            state.pathParameters['id'] ?? '',
-                          ) ??
-                          0;
+                      final id =
+                          int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
                       return ProductDetailPage(productId: id);
                     },
                   ),
@@ -179,17 +178,15 @@ class _AppShell extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           border: Border(
-            top: BorderSide(
-              color: colorScheme.outlineVariant,
-              width: 0.5,
-            ),
+            top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
           ),
         ),
         child: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: navigationShell.goBranch,
+          height: 80,
           backgroundColor: colorScheme.surface,
-          indicatorColor: const Color(0xFFEDE7FF),
+          indicatorColor: colorScheme.primaryContainer,
           indicatorShape: const StadiumBorder(),
           destinations: const [
             NavigationDestination(
