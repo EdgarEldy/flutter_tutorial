@@ -703,7 +703,9 @@ Browsing experience: product listing with search and filtering, and product deta
 - [x] Pull-to-refresh
 - [x] Bottom navigation shell (Products, Cart, Orders, Profile)
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
+- [x] Alignement UI catalogue 390 x 844 avec grille, cartes, chips et bottom bar
+- [x] Alignement UI détail produit avec image 300dp, pinned appbar et quantity selector
+- [x] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
 
