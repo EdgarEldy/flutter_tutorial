@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../data/providers/cart_providers.dart';
 import 'cart_state.dart';
 
@@ -36,8 +37,9 @@ class CartNotifier extends _$CartNotifier {
 
   /// Adds [quantity] units of [productId] to the cart.
   Future<void> addItem(int productId, int quantity) async {
-    final result =
-        await ref.read(addCartItemUseCaseProvider).call(productId, quantity);
+    final result = await ref
+        .read(addCartItemUseCaseProvider)
+        .call(productId, quantity);
     result.fold(
       (failure) => state = state.copyWith(errorMessage: failure.message),
       (cart) => state = state.copyWith(cart: cart, errorMessage: null),
@@ -46,8 +48,9 @@ class CartNotifier extends _$CartNotifier {
 
   /// Updates the quantity of [itemId].
   Future<void> updateItem(int itemId, int quantity) async {
-    final result =
-        await ref.read(updateCartItemUseCaseProvider).call(itemId, quantity);
+    final result = await ref
+        .read(updateCartItemUseCaseProvider)
+        .call(itemId, quantity);
     result.fold(
       (failure) => state = state.copyWith(errorMessage: failure.message),
       (cart) => state = state.copyWith(cart: cart, errorMessage: null),
@@ -83,7 +86,15 @@ class CartNotifier extends _$CartNotifier {
 
   /// Reloads the cart from the server.
   Future<void> refresh() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    await _loadCart();
+    state = state.copyWith(errorMessage: null);
+    final result = await ref.read(getCartUseCaseProvider).call();
+    result.fold(
+      (failure) => state = state.copyWith(errorMessage: failure.message),
+      (cart) => state = state.copyWith(
+        cart: cart,
+        isLoading: false,
+        errorMessage: null,
+      ),
+    );
   }
 }
