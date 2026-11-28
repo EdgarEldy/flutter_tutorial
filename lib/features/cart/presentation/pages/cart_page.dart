@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,7 +11,7 @@ import '../../domain/entities/cart.dart';
 /// Author: edgar.muhamyangabo
 /// Date: 2026-11-26
 /// Project: flutter_tutorial
-class CartPage extends ConsumerWidget {
+class CartPage extends HookConsumerWidget {
   const CartPage({super.key});
 
   @override
@@ -31,10 +30,13 @@ class CartPage extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surfaceContainerLow,
       appBar: AppBar(
         backgroundColor: colorScheme.surface,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        toolbarHeight: 64,
         title: Text(
           'My Cart',
           style: textTheme.titleLarge?.copyWith(
@@ -52,8 +54,7 @@ class CartPage extends ConsumerWidget {
           if (cartState.errorMessage != null && cartState.cart == null) {
             return _ErrorState(
               message: cartState.errorMessage!,
-              onRetry: () =>
-                  ref.read(cartProvider.notifier).refresh(),
+              onRetry: () => ref.read(cartProvider.notifier).refresh(),
             );
           }
 
@@ -65,45 +66,43 @@ class CartPage extends ConsumerWidget {
           return Column(
             children: [
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: cart.items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final item = cart.items[index];
-                    return _CartItemCard(
-                      item: item,
-                      onDecrement: () {
-                        if (item.quantity > 1) {
+                child: RefreshIndicator(
+                  onRefresh: () => ref.read(cartProvider.notifier).refresh(),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    itemCount: cart.items.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final item = cart.items[index];
+                      return CartItemCard(
+                        item: item,
+                        onDecrement: () {
+                          if (item.quantity > 1) {
+                            ref
+                                .read(cartProvider.notifier)
+                                .updateItem(item.id, item.quantity - 1);
+                          } else {
+                            ref.read(cartProvider.notifier).removeItem(item.id);
+                          }
+                        },
+                        onIncrement: () {
                           ref
                               .read(cartProvider.notifier)
-                              .updateItem(item.id, item.quantity - 1);
-                        } else {
-                          ref
-                              .read(cartProvider.notifier)
-                              .removeItem(item.id);
-                        }
-                      },
-                      onIncrement: () {
-                        ref
-                            .read(cartProvider.notifier)
-                            .updateItem(item.id, item.quantity + 1);
-                      },
-                      onRemove: () {
-                        ref
-                            .read(cartProvider.notifier)
-                            .removeItem(item.id);
-                      },
-                    );
-                  },
+                              .updateItem(item.id, item.quantity + 1);
+                        },
+                        onRemove: () {
+                          ref.read(cartProvider.notifier).removeItem(item.id);
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
-              _CartSummaryBar(
+              CartSummaryBar(
                 totalAmount: cart.totalAmount,
                 isCheckingOut: cartState.isCheckingOut,
                 errorMessage: cartState.errorMessage,
-                onCheckout: () =>
-                    ref.read(cartProvider.notifier).checkout(),
+                onCheckout: () => ref.read(cartProvider.notifier).checkout(),
               ),
             ],
           );
@@ -184,10 +183,7 @@ class _ErrorState extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            FilledButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),
@@ -195,8 +191,9 @@ class _ErrorState extends StatelessWidget {
   }
 }
 
-class _CartItemCard extends StatelessWidget {
-  const _CartItemCard({
+class CartItemCard extends StatelessWidget {
+  const CartItemCard({
+    super.key,
     required this.item,
     required this.onDecrement,
     required this.onIncrement,
@@ -219,9 +216,9 @@ class _CartItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onSurface.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -230,6 +227,21 @@ class _CartItemCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.shopping_bag_outlined,
+                size: 34,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,12 +284,12 @@ class _CartItemCard extends StatelessWidget {
                     size: 20,
                   ),
                   style: IconButton.styleFrom(
-                    minimumSize: const Size(32, 32),
+                    minimumSize: const Size(48, 48),
                     padding: EdgeInsets.zero,
                   ),
                 ),
                 const SizedBox(height: 4),
-                _QuantityControl(
+                QuantityControl(
                   quantity: item.quantity,
                   onDecrement: onDecrement,
                   onIncrement: onIncrement,
@@ -291,8 +303,9 @@ class _CartItemCard extends StatelessWidget {
   }
 }
 
-class _QuantityControl extends StatelessWidget {
-  const _QuantityControl({
+class QuantityControl extends StatelessWidget {
+  const QuantityControl({
+    super.key,
     required this.quantity,
     required this.onDecrement,
     required this.onIncrement,
@@ -319,9 +332,8 @@ class _QuantityControl extends StatelessWidget {
           child: Text(
             '$quantity',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         _SmallButton(
@@ -347,23 +359,22 @@ class _SmallButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, size: 16, color: colorScheme.onPrimaryContainer),
+    return IconButton(
+      onPressed: onTap,
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      iconSize: 18,
+      style: IconButton.styleFrom(
+        backgroundColor: colorScheme.primaryContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
+      icon: Icon(icon, size: 18, color: colorScheme.onPrimaryContainer),
     );
   }
 }
 
-class _CartSummaryBar extends StatelessWidget {
-  const _CartSummaryBar({
+class CartSummaryBar extends StatelessWidget {
+  const CartSummaryBar({
+    super.key,
     required this.totalAmount,
     required this.isCheckingOut,
     required this.onCheckout,
@@ -395,9 +406,7 @@ class _CartSummaryBar extends StatelessWidget {
           if (errorMessage != null) ...[
             Text(
               errorMessage!,
-              style: textTheme.bodySmall?.copyWith(
-                color: colorScheme.error,
-              ),
+              style: textTheme.bodySmall?.copyWith(color: colorScheme.error),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
