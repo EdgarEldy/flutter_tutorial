@@ -11,7 +11,7 @@ import '../providers/cart_notifier.dart';
 /// Author: edgar.muhamyangabo
 /// Date: 2026-11-26
 /// Project: flutter_tutorial
-class CheckoutConfirmationPage extends ConsumerWidget {
+class CheckoutConfirmationPage extends HookConsumerWidget {
   const CheckoutConfirmationPage({super.key});
 
   @override
@@ -42,124 +42,133 @@ class CheckoutConfirmationPage extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surfaceContainerLow,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(),
-              // Success icon hero
-              const SizedBox(height: 0), // top spacer anchor
-              Container(
-                width: 100,
-                height: 100,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFDCFCE7),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle_outline,
-                  size: 56,
-                  color: Color(0xFF16A34A),
-                ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'Order Confirmed!',
-                style: textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your order has been placed successfully',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              // Order details card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.onSurface.withOpacity(0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 56,
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _OrderDetailRow(
-                      label: 'Order #',
-                      value: '${order.id}',
-                      colorScheme: colorScheme,
-                      textTheme: textTheme,
+                    const SizedBox(height: 24),
+                    // Success icon hero
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_circle_outline,
+                        size: 56,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Text(
+                      'Order Confirmed!',
+                      style: textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your order has been placed successfully',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    // Order details card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.shadow.withValues(alpha: 0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          OrderDetailRow(
+                            label: 'Order #',
+                            value: '${order.id}',
+                            colorScheme: colorScheme,
+                            textTheme: textTheme,
+                          ),
+                          const SizedBox(height: 12),
+                          OrderDetailRow(
+                            label: 'Status',
+                            value: order.status,
+                            colorScheme: colorScheme,
+                            textTheme: textTheme,
+                            valueColor: colorScheme.primary,
+                          ),
+                          const Divider(height: 24),
+                          OrderDetailRow(
+                            label: 'Total',
+                            value: '\$${order.totalAmount.toStringAsFixed(2)}',
+                            colorScheme: colorScheme,
+                            textTheme: textTheme,
+                            isBold: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    // Actions
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: FilledButton(
+                        onPressed: () => context.go('/orders'),
+                        child: const Text(
+                          'View orders',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    _OrderDetailRow(
-                      label: 'Status',
-                      value: order.status,
-                      colorScheme: colorScheme,
-                      textTheme: textTheme,
-                      valueColor: const Color(0xFF16A34A),
-                    ),
-                    const Divider(height: 24),
-                    _OrderDetailRow(
-                      label: 'Total',
-                      value: '\$${order.totalAmount.toStringAsFixed(2)}',
-                      colorScheme: colorScheme,
-                      textTheme: textTheme,
-                      isBold: true,
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton(
+                        onPressed: () => context.go('/products'),
+                        child: const Text(
+                          'Continue shopping',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Spacer(),
-              // Actions
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: () => context.go('/orders'),
-                  child: const Text(
-                    'View orders',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: () => context.go('/products'),
-                  child: const Text(
-                    'Continue shopping',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _OrderDetailRow extends StatelessWidget {
-  const _OrderDetailRow({
+class OrderDetailRow extends StatelessWidget {
+  const OrderDetailRow({
+    super.key,
     required this.label,
     required this.value,
     required this.colorScheme,
@@ -190,9 +199,9 @@ class _OrderDetailRow extends StatelessWidget {
           value,
           style: (isBold ? textTheme.titleMedium : textTheme.bodyMedium)
               ?.copyWith(
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-            color: valueColor ?? colorScheme.onSurface,
-          ),
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                color: valueColor ?? colorScheme.onSurface,
+              ),
         ),
       ],
     );

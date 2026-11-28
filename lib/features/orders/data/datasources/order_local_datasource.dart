@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../models/order_model.dart';
 
 /// Contract for local sqflite access to cached orders and their items.
@@ -12,6 +13,9 @@ abstract interface class OrderLocalDatasource {
 
   /// Replaces the full orders cache in a single transaction.
   Future<void> upsertOrders(List<OrderModel> models);
+
+  /// Inserts or replaces one order and its items without clearing other orders.
+  Future<void> upsertOrder(OrderModel model);
 
   /// Clears the entire orders cache (orders and their items).
   Future<void> deleteAllOrders();
@@ -56,6 +60,30 @@ class OrderLocalDatasourceImpl implements OrderLocalDatasource {
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
+      }
+    });
+  }
+
+  @override
+  Future<void> upsertOrder(OrderModel model) async {
+    await _db.transaction((txn) async {
+      await txn.delete(
+        'order_items_cache',
+        where: 'order_id = ?',
+        whereArgs: [model.id],
+      );
+      await txn.delete('orders_cache', where: 'id = ?', whereArgs: [model.id]);
+      await txn.insert(
+        'orders_cache',
+        model.toCacheRow(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      for (final item in model.items) {
+        await txn.insert(
+          'order_items_cache',
+          item.toCacheRow(model.id),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
     });
   }

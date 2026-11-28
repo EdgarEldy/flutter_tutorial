@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_initializing_formals
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart' hide Order;
+
 import '../../../../core/errors/failure.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/repositories/order_repository.dart';
@@ -19,8 +20,8 @@ class OrderRepositoryImpl implements OrderRepository {
   const OrderRepositoryImpl({
     required OrderRemoteDatasource remote,
     required OrderLocalDatasource local,
-  })  : _remote = remote,
-        _local = local;
+  }) : _remote = remote,
+       _local = local;
 
   final OrderRemoteDatasource _remote;
   final OrderLocalDatasource _local;
@@ -37,7 +38,7 @@ class OrderRepositoryImpl implements OrderRepository {
       await _local.upsertOrders(models);
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
-      return Left(NetworkFailure(e.message ?? 'Network error'));
+      return Left(_mapDioFailure(e));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -52,9 +53,10 @@ class OrderRepositoryImpl implements OrderRepository {
         return Right(OrderModel.fromCacheRow(cached, items).toEntity());
       }
       final model = await _remote.getOrderById(id);
+      await _local.upsertOrder(model);
       return Right(model.toEntity());
     } on DioException catch (e) {
-      return Left(NetworkFailure(e.message ?? 'Network error'));
+      return Left(_mapDioFailure(e));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -63,20 +65,17 @@ class OrderRepositoryImpl implements OrderRepository {
   @override
   Future<Either<Failure, List<Order>>> refreshOrders() async {
     try {
-      await _local.deleteAllOrders();
       final models = await _remote.getOrders();
       await _local.upsertOrders(models);
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
-      return Left(NetworkFailure(e.message ?? 'Network error'));
+      return Left(_mapDioFailure(e));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
   }
 
-  Future<List<Order>> _buildFromCache(
-    List<Map<String, dynamic>> rows,
-  ) async {
+  Future<List<Order>> _buildFromCache(List<Map<String, dynamic>> rows) async {
     final orders = <Order>[];
     for (final row in rows) {
       final id = row['id'] as int;
@@ -97,5 +96,28 @@ class OrderRepositoryImpl implements OrderRepository {
     } catch (_) {
       // Background refresh failure is silent; stale cache remains usable.
     }
+  }
+
+  Failure _mapDioFailure(DioException error) {
+    final statusCode = error.response?.statusCode;
+    if (statusCode == 400) {
+      return ValidationFailure(error.message ?? 'Invalid request');
+    }
+    if (statusCode == 401) {
+      return const UnauthorizedFailure('Unauthorized');
+    }
+    if (statusCode == 404) {
+      return ServerFailure(
+        error.message ?? 'Order not found',
+        statusCode: statusCode,
+      );
+    }
+    if (statusCode != null && statusCode >= 500) {
+      return ServerFailure(
+        error.message ?? 'Server error',
+        statusCode: statusCode,
+      );
+    }
+    return NetworkFailure(error.message ?? 'Network error');
   }
 }

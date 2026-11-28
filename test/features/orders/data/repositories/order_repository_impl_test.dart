@@ -15,11 +15,23 @@ class MockOrderRemoteDatasource extends Mock implements OrderRemoteDatasource {}
 class MockOrderLocalDatasource extends Mock implements OrderLocalDatasource {}
 
 DioException makeDioException() => DioException(
-      requestOptions: RequestOptions(path: '/test'),
-      message: 'Network error',
-    );
+  requestOptions: RequestOptions(path: '/test'),
+  message: 'Network error',
+);
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(
+      const OrderModel(
+        id: 0,
+        orderNumber: '',
+        status: 'PENDING',
+        totalAmount: 0,
+        items: [],
+      ),
+    );
+  });
+
   late MockOrderRemoteDatasource mockRemote;
   late MockOrderLocalDatasource mockLocal;
   late OrderRepositoryImpl repo;
@@ -77,15 +89,12 @@ void main() {
       final result = await repo.getOrders();
 
       expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('expected Right'),
-        (orders) {
-          expect(orders, hasLength(1));
-          expect(orders.first.id, equals(1));
-          expect(orders.first.orderNumber, equals('ORD-001'));
-          expect(orders.first.status, equals(OrderStatus.pending));
-        },
-      );
+      result.fold((_) => fail('expected Right'), (orders) {
+        expect(orders, hasLength(1));
+        expect(orders.first.id, equals(1));
+        expect(orders.first.orderNumber, equals('ORD-001'));
+        expect(orders.first.status, equals(OrderStatus.pending));
+      });
       // Remote is called by the background refresh (fire-and-forget); we only
       // verify the returned data came from the local cache.
     });
@@ -99,14 +108,11 @@ void main() {
       final result = await repo.getOrders();
 
       expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('expected Right'),
-        (orders) {
-          expect(orders, hasLength(1));
-          expect(orders.first.id, equals(1));
-          expect(orders.first.status, equals(OrderStatus.pending));
-        },
-      );
+      result.fold((_) => fail('expected Right'), (orders) {
+        expect(orders, hasLength(1));
+        expect(orders.first.id, equals(1));
+        expect(orders.first.status, equals(OrderStatus.pending));
+      });
       verify(() => mockRemote.getOrders()).called(1);
       verify(() => mockLocal.upsertOrders(any())).called(1);
     });
@@ -127,22 +133,17 @@ void main() {
 
   group('getOrderById()', () {
     test('_04_ShouldReturnCachedOrder_WhenOrderIsInCache', () async {
-      when(() => mockLocal.getOrderById(1))
-          .thenAnswer((_) async => orderRow);
-      when(() => mockLocal.getOrderItems(1))
-          .thenAnswer((_) async => [itemRow]);
+      when(() => mockLocal.getOrderById(1)).thenAnswer((_) async => orderRow);
+      when(() => mockLocal.getOrderItems(1)).thenAnswer((_) async => [itemRow]);
 
       final result = await repo.getOrderById(1);
 
       expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('expected Right'),
-        (order) {
-          expect(order.id, equals(1));
-          expect(order.orderNumber, equals('ORD-001'));
-          expect(order.items, hasLength(1));
-        },
-      );
+      result.fold((_) => fail('expected Right'), (order) {
+        expect(order.id, equals(1));
+        expect(order.orderNumber, equals('ORD-001'));
+        expect(order.items, hasLength(1));
+      });
       verifyNever(() => mockRemote.getOrderById(any()));
     });
 
@@ -150,18 +151,17 @@ void main() {
       when(() => mockLocal.getOrderById(1)).thenAnswer((_) async => null);
       when(() => mockRemote.getOrderById(1))
           .thenAnswer((_) async => testOrderModel);
+      when(() => mockLocal.upsertOrder(any())).thenAnswer((_) async {});
 
       final result = await repo.getOrderById(1);
 
       expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('expected Right'),
-        (order) {
-          expect(order.id, equals(1));
-          expect(order.status, equals(OrderStatus.pending));
-        },
-      );
+      result.fold((_) => fail('expected Right'), (order) {
+        expect(order.id, equals(1));
+        expect(order.status, equals(OrderStatus.pending));
+      });
       verify(() => mockRemote.getOrderById(1)).called(1);
+      verify(() => mockLocal.upsertOrder(testOrderModel)).called(1);
     });
 
     test('_06_ShouldReturnLeft_WhenRemoteFailsAndCacheEmpty', () async {
@@ -179,28 +179,26 @@ void main() {
   });
 
   group('refreshOrders()', () {
-    test('_07_ShouldDeleteCacheThenFetchFromNetwork_WhenRefreshCalled',
-        () async {
-      when(() => mockLocal.deleteAllOrders()).thenAnswer((_) async {});
-      when(() => mockRemote.getOrders())
-          .thenAnswer((_) async => [testOrderModel]);
-      when(() => mockLocal.upsertOrders(any())).thenAnswer((_) async {});
+    test(
+      '_07_ShouldFetchFromNetworkAndReplaceCacheWhenRefreshCalled',
+      () async {
+        when(() => mockRemote.getOrders())
+            .thenAnswer((_) async => [testOrderModel]);
+        when(() => mockLocal.upsertOrders(any())).thenAnswer((_) async {});
 
-      final result = await repo.refreshOrders();
+        final result = await repo.refreshOrders();
 
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('expected Right'),
-        (orders) {
+        expect(result.isRight(), isTrue);
+        result.fold((_) => fail('expected Right'), (orders) {
           expect(orders, hasLength(1));
           expect(orders.first.id, equals(1));
           expect(orders.first.status, equals(OrderStatus.pending));
-        },
-      );
-      verify(() => mockLocal.deleteAllOrders()).called(1);
-      verify(() => mockRemote.getOrders()).called(1);
-      verify(() => mockLocal.upsertOrders(any())).called(1);
-    });
+        });
+        verifyNever(() => mockLocal.deleteAllOrders());
+        verify(() => mockRemote.getOrders()).called(1);
+        verify(() => mockLocal.upsertOrders(any())).called(1);
+      },
+    );
 
     test('_08_ShouldReturnLeft_WhenNetworkFailsDuringRefresh', () async {
       when(() => mockLocal.deleteAllOrders()).thenAnswer((_) async {});

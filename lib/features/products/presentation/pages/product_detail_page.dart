@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import '../providers/product_detail_notifier.dart';
 import '../../../cart/presentation/providers/cart_notifier.dart';
 
@@ -19,14 +20,13 @@ class ProductDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productAsync =
-        ref.watch(productDetailProvider(productId));
+    final productAsync = ref.watch(productDetailProvider(productId));
     final quantity = useState(1);
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: colorScheme.surfaceContainerLow,
       body: productAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
@@ -44,6 +44,18 @@ class ProductDetailPage extends HookConsumerWidget {
             SliverAppBar(
               expandedHeight: 300,
               pinned: true,
+              elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              leading: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Material(
+                  color: colorScheme.surface.withOpacity(0.8),
+                  shape: const CircleBorder(),
+                  clipBehavior: Clip.antiAlias,
+                  child: BackButton(color: colorScheme.onSurface),
+                ),
+              ),
               flexibleSpace: FlexibleSpaceBar(
                 background: product.primaryImageUrl != null
                     ? CachedNetworkImage(
@@ -62,12 +74,12 @@ class ProductDetailPage extends HookConsumerWidget {
                   if (product.categoryName != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+                        horizontal: 12,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEDE7FF),
-                        borderRadius: BorderRadius.circular(10),
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
                         product.categoryName!,
@@ -117,7 +129,7 @@ class ProductDetailPage extends HookConsumerWidget {
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
-                    height: 52,
+                    height: 56,
                     child: FilledButton.icon(
                       onPressed: () async {
                         final notifier =
@@ -159,15 +171,16 @@ class ProductDetailPage extends HookConsumerWidget {
 class _GradientPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF7C3AED),
-            Color(0xFF6750A4),
-            Color(0xFF4A3580),
+            colorScheme.primary,
+            colorScheme.primaryContainer,
+            colorScheme.secondaryContainer,
           ],
         ),
       ),
@@ -195,9 +208,9 @@ class _QuantitySelector extends StatelessWidget {
         Text(
           'Quantity',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
         ),
         const Spacer(),
         _CounterButton(
@@ -210,9 +223,8 @@ class _QuantitySelector extends StatelessWidget {
           child: Text(
             '$quantity',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         _CounterButton(
@@ -238,17 +250,15 @@ class _CounterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, size: 18, color: colorScheme.onPrimaryContainer),
+    return IconButton(
+      onPressed: onTap,
+      iconSize: 20,
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      style: IconButton.styleFrom(
+        backgroundColor: colorScheme.primaryContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      icon: Icon(icon, size: 20, color: colorScheme.onPrimaryContainer),
     );
   }
 }

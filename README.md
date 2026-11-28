@@ -703,6 +703,8 @@ Browsing experience: product listing with search and filtering, and product deta
 - [x] Pull-to-refresh
 - [x] Bottom navigation shell (Products, Cart, Orders, Profile)
 - [x] Wired via Riverpod providers
+- [x] Alignement UI catalogue 390 x 844 avec grille, cartes, chips et bottom bar
+- [x] Alignement UI détail produit avec image 300dp, pinned appbar et quantity selector
 - [x] Tests: use cases, `ProductsNotifier`, `ProductRepositoryImpl`
 
 ---
@@ -743,7 +745,9 @@ Cart management and checkout.
 - [x] Cart badge on bottom nav
 - [x] Duplicate-submit protection on checkout
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
+- [x] Alignement UI panier 390 x 844 avec cartes, controls tactiles, résumé sticky et états
+- [x] Alignement UI confirmation commande 390 x 844
+- [x] Tests: use cases, `CartNotifier`, `CartRepositoryImpl`
 
 ---
 
@@ -779,7 +783,9 @@ Order history and order detail.
 - [x] `OrderStatusBadge` widget
 - [x] Pull-to-refresh on order list
 - [x] Wired via Riverpod providers
-- [ ] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
+- [x] Alignement UI Mes commandes 390 x 844 avec header 22sp, cartes 20px et états
+- [x] Alignement UI Détail commande 390 x 844 avec tracking, items, résumé et retour 36px
+- [x] Tests: use cases, `OrdersNotifier`, `OrderRepositoryImpl`
 
 ---
 
