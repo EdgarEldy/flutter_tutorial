@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/domain/entities/auth_state.dart';
@@ -13,6 +14,8 @@ import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/verify_otp_page.dart';
 import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/cart/presentation/pages/checkout_confirmation_page.dart';
+import '../../features/cart/presentation/providers/cart_notifier.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/products/presentation/pages/product_detail_page.dart';
 import '../../features/products/presentation/pages/product_list_page.dart';
@@ -103,6 +106,10 @@ GoRouter router(Ref ref) {
           return ResetPasswordPage(otp: otp);
         },
       ),
+      GoRoute(
+        path: '/checkout-confirmation',
+        builder: (context, state) => const CheckoutConfirmationPage(),
+      ),
 
       // Protected shell with bottom navigation
       StatefulShellRoute.indexedStack(
@@ -162,14 +169,15 @@ GoRouter router(Ref ref) {
 /// Author: edgar.muhamyangabo
 /// Date: 2026-11-25
 /// Project: flutter_tutorial
-class _AppShell extends StatelessWidget {
+class _AppShell extends ConsumerWidget {
   const _AppShell({required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final cartCount = ref.watch(cartProvider).cart?.itemCount ?? 0;
 
     return Scaffold(
       body: navigationShell,
@@ -188,23 +196,31 @@ class _AppShell extends StatelessWidget {
           backgroundColor: colorScheme.surface,
           indicatorColor: colorScheme.primaryContainer,
           indicatorShape: const StadiumBorder(),
-          destinations: const [
-            NavigationDestination(
+          destinations: [
+            const NavigationDestination(
               icon: Icon(Icons.storefront_outlined),
               selectedIcon: Icon(Icons.storefront),
               label: 'Products',
             ),
             NavigationDestination(
-              icon: Icon(Icons.shopping_cart_outlined),
-              selectedIcon: Icon(Icons.shopping_cart),
+              icon: Badge(
+                isLabelVisible: cartCount > 0,
+                label: Text('$cartCount'),
+                child: const Icon(Icons.shopping_cart_outlined),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: cartCount > 0,
+                label: Text('$cartCount'),
+                child: const Icon(Icons.shopping_cart),
+              ),
               label: 'Cart',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
               selectedIcon: Icon(Icons.receipt_long),
               label: 'Orders',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.person_outline),
               selectedIcon: Icon(Icons.person),
               label: 'Profile',
