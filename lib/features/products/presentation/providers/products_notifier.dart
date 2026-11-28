@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../../data/providers/product_providers.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
@@ -14,16 +17,23 @@ part 'products_notifier.g.dart';
 /// Project: flutter_tutorial
 @riverpod
 class ProductsNotifier extends _$ProductsNotifier {
+  Timer? _searchTimer;
+  int _searchSequence = 0;
+
   @override
   ProductsState build() {
+    ref.onDispose(() => _searchTimer?.cancel());
     _loadInitial();
     return const ProductsState(isLoading: true);
   }
 
   Future<void> _loadInitial() async {
-    final categoriesResult =
-        await ref.read(getCategoriesUseCaseProvider).call();
-    final productsResult = await ref.read(getProductsUseCaseProvider).call(
+    final categoriesResult = await ref
+        .read(getCategoriesUseCaseProvider)
+        .call();
+    final productsResult = await ref
+        .read(getProductsUseCaseProvider)
+        .call(
           categoryId: state.selectedCategoryId,
           productName: state.searchQuery.isEmpty ? null : state.searchQuery,
         );
@@ -49,7 +59,21 @@ class ProductsNotifier extends _$ProductsNotifier {
 
   Future<void> refresh() async {
     state = state.copyWith(isRefreshing: true, errorMessage: null);
-    final result = await ref.read(getProductsUseCaseProvider).call(
+    final refreshResult = await ref.read(refreshProductsUseCaseProvider).call();
+    if (refreshResult.isLeft()) {
+      refreshResult.fold(
+        (failure) => state = state.copyWith(
+          isRefreshing: false,
+          errorMessage: failure.message,
+        ),
+        (_) {},
+      );
+      return;
+    }
+
+    final result = await ref
+        .read(getProductsUseCaseProvider)
+        .call(
           categoryId: state.selectedCategoryId,
           productName: state.searchQuery.isEmpty ? null : state.searchQuery,
         );
@@ -72,7 +96,9 @@ class ProductsNotifier extends _$ProductsNotifier {
       isLoading: true,
       errorMessage: null,
     );
-    final result = await ref.read(getProductsUseCaseProvider).call(
+    final result = await ref
+        .read(getProductsUseCaseProvider)
+        .call(
           categoryId: categoryId,
           productName: state.searchQuery.isEmpty ? null : state.searchQuery,
         );
@@ -95,10 +121,26 @@ class ProductsNotifier extends _$ProductsNotifier {
       isLoading: true,
       errorMessage: null,
     );
-    final result = await ref.read(getProductsUseCaseProvider).call(
+    _searchTimer?.cancel();
+    final sequence = ++_searchSequence;
+    final completer = Completer<void>();
+    _searchTimer = Timer(const Duration(milliseconds: 300), () async {
+      if (sequence == _searchSequence) {
+        await _executeSearch(query, sequence);
+      }
+      completer.complete();
+    });
+    await completer.future;
+  }
+
+  Future<void> _executeSearch(String query, int sequence) async {
+    final result = await ref
+        .read(getProductsUseCaseProvider)
+        .call(
           categoryId: state.selectedCategoryId,
           productName: query.isEmpty ? null : query,
         );
+    if (sequence != _searchSequence) return;
     result.fold(
       (failure) => state = state.copyWith(
         isLoading: false,
